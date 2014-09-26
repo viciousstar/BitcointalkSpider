@@ -21,15 +21,14 @@ class  User(scrapy.Item):
 	age = scrapy.Field()
 	bitcoinAddress = scarpy.Field()
 
-    	pass
+    
 
 class Post(scrapy.Item):
 	# store posts' information
 	topic = scrapy.Field()
 	time = scrapy.Field()
+	# include every post'(include re) all content(topic, author, time, content)
 	content = scrapy.Field()
 	url = scrapy.Field()
 	ofBoard = scrapy.Field()
 	user = scrapy.Field()
-
-	pass
