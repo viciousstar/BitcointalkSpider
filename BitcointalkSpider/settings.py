@@ -12,6 +12,12 @@ BOT_NAME = 'BitcointalkSpider'
 
 SPIDER_MODULES = ['BitcointalkSpider.spiders']
 NEWSPIDER_MODULE = 'BitcointalkSpider.spiders'
+# retry
+RETRY_ENABLED = False
+# cookie, we don't need cookies in this website
+COOKIES_ENABLED = False
+# this time have to reset
+DOWNLOAD_TIMEOUT = 50
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'BitcointalkSpider (+http://www.yourdomain.com)'

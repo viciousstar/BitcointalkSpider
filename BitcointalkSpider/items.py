@@ -8,7 +8,28 @@
 import scrapy
 
 
-class BitcointalkspiderItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class  User(scrapy.Item):
+	# store user's infromation
+	name = scrapy.Field()
+	posts = scrapy.Field()
+	activity = scrapy.Field()
+	position = scrapy.Field()
+	registerData= scrapy.Field()
+	lastData = scrapy.Field()
+	Email = scrapy.Field()
+	gender = scrapy.Field()
+	age = scrapy.Field()
+	bitcoinAddress = scarpy.Field()
+
+    	pass
+
+class Post(scrapy.Item):
+	# store posts' information
+	topic = scrapy.Field()
+	time = scrapy.Field()
+	content = scrapy.Field()
+	url = scrapy.Field()
+	ofBoard = scrapy.Field()
+	user = scrapy.Field()
+
+	pass
