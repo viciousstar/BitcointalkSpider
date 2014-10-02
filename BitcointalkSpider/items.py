@@ -19,7 +19,7 @@ class  User(scrapy.Item):
 	Email = scrapy.Field()
 	gender = scrapy.Field()
 	age = scrapy.Field()
-	bitcoinAddress = scarpy.Field()
+	bitcoinAddress = scrapy.Field()
 
     
 

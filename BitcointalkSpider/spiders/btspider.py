@@ -12,23 +12,20 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 
 	rules =  (
 		#rule for board
-		Rules(LinkExtractor(allow = ("https://bitcointalk.org/index.php?board=\d+.\d+"))),
+		Rule(LinkExtractor(allow = ("https://bitcointalk.org/index.php?board=\d+\.\d+"))),
 		#rule for post, the "follow is true" is for  continuing extract
-		Rules(LinkExtractor(allow = ("https://bitcointalk.org/index.php?topic=\d+.\d"),
-			callback = extractorPost),
+		Rule(LinkExtractor(allow = ("https://bitcointalk.org/index.php?topic=\d+\.\d"),),
+			callback = "extractPost",
 			follow = True),
 		#rule for use
-		Rules(LinkExtractor(allow = ("https://bitcointalk.org/index.php?action=profile;u=\d+"), 
-			callback = extractUser)),
-
-
-
+		Rule(LinkExtractor(allow = ("https://bitcointalk.org/index.php?action=profile;u=\d+"), ),
+			callback = "extractUser")
 
 		)
 
-	def extractorPost(self, response):
+	def extractPost(self, response):
 		post = Post()
-		post.topic = response.xpath("//*[id = "top_subject"]/text()").extract().spilt(":")[1]
+		post.topic = response.xpath("//*[id = 'top_subject']/text()").extract().spilt(":")[1]
 		post.content = []
 		#every post' tr  in different board have different  @class, pretr is the first character of class attribute
 		preTr =  response.xpath("//*[@id = 'quickModForm']/table[1]/tr[1]/@class").extract()[0][0]
@@ -51,7 +48,7 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 
 		return post
 
-	def extractorUser(self, response):
+	def extractUser(self, response):
 		user = User()
 		userinfo = response.xpath("//table[@align = 'center' and @cellpadding = '4']//text()").extract()
 		# extract every info form list of  userinfo
@@ -59,26 +56,37 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 		for index, info in list_userinfo:
 			#avoid list out of index
 			try:
-				if  info.find("Name: ") != -1 and (name = list_userinfo[index + 2][1].strip()) != '':
-					user.name = name
-				if  info.find("Posts") != -1 and (post = list_userinfo[index + 2][1].strip()) != '':
-					user.post = post
-				if  info.find("Activity") != -1 and (activity = list_userinfo[index + 2][1].strip()) != '':
-					user.activity = activity
-				if  info.find("Position") != -1 and (positon = list_userinfo[index + 2][1].strip()) != '':
-					user.positon = positon
-				if  info.find("Date Refistered") != -1 and (registerData = list_userinfo[index + 2][1].strip()) != '':
-					user.registerData = registerData
-				if  info.find("Last Active") != -1 and (lastData = list_userinfo[index + 2][1].strip()) != '':
-					user.lastData = lastData
-				if  info.find("Email: ") != -1 and (Email = list_userinfo[index + 2][1].strip()) != '':
-					user.Email = Email
-				if  info.find("Gender") != -1 and (gender = list_userinfo[index + 2][1].strip()) != '':
-					user.gender = gender
-				if  info.find("Age") != -1 and (age = list_userinfo[index + 2][1].strip()) != '':
-					user.age = age
-				if  info.find("") != -1 and (bitcoinAddress = list_userinfo[index + 2][1].strip()) != '':
-					user.bitcoinAddress = bitcoinAddress
+				foo = list_userinfo[index + 2][1].strip()
+				if  info.find("Name: ") != -1 and foo != '':
+					user.name = foo
+					continue
+				if  info.find("Posts") != -1 and foo != '':
+					user.post = foo
+					continue
+				if  info.find("Activity") != -1 and foo != '':
+					user.activity = foo
+					continue
+				if  info.find("Position") != -1 and foo != '':
+					user.positon = foo
+					continue
+				if  info.find("Date Refistered") != -1 and foo != '':
+					user.registerData = foo
+					continue
+				if  info.find("Last Active") != -1 and foo != '':
+					user.lastData = foo
+					continue
+				if  info.find("Email: ") != -1 and foo != '':
+					user.Email = foo
+					continue
+				if  info.find("Gender") != -1 and foo != '':
+					user.gender = foo
+					continue
+				if  info.find("Age") != -1 and foo != '':
+					user.age = foo
+					continue
+				if  info.find("") != -1 and foo != '':
+					user.bitcoinAddress = foo
+					continue
 			except:
 				log.message("out of index!!!")
 				break
