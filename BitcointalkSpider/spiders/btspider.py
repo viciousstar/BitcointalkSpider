@@ -12,13 +12,13 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 
 	rules =  (
 		#rule for board
-		Rule(LinkExtractor(allow = ("https://bitcointalk.org/index.php?board=\d+\.\d+"))),
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?board=\d+\.\d+"))),
 		#rule for post, the "follow is true" is for  continuing extract
-		Rule(LinkExtractor(allow = ("https://bitcointalk.org/index.php?topic=\d+\.\d"),),
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d"),),
 			callback = "extractPost",
 			follow = True),
 		#rule for use
-		Rule(LinkExtractor(allow = ("https://bitcointalk.org/index.php?action=profile;u=\d+"), ),
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?action=profile;u=\d+"), ),
 			callback = "extractUser")
 
 		)
@@ -57,36 +57,37 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 			#avoid list out of index
 			try:
 				foo = list_userinfo[index + 2][1].strip()
-				if  info.find("Name: ") != -1 and foo != '':
-					user.name = foo
-					continue
-				if  info.find("Posts") != -1 and foo != '':
-					user.post = foo
-					continue
-				if  info.find("Activity") != -1 and foo != '':
-					user.activity = foo
-					continue
-				if  info.find("Position") != -1 and foo != '':
-					user.positon = foo
-					continue
-				if  info.find("Date Refistered") != -1 and foo != '':
-					user.registerData = foo
-					continue
-				if  info.find("Last Active") != -1 and foo != '':
-					user.lastData = foo
-					continue
-				if  info.find("Email: ") != -1 and foo != '':
-					user.Email = foo
-					continue
-				if  info.find("Gender") != -1 and foo != '':
-					user.gender = foo
-					continue
-				if  info.find("Age") != -1 and foo != '':
-					user.age = foo
-					continue
-				if  info.find("") != -1 and foo != '':
-					user.bitcoinAddress = foo
-					continue
+				if foo != "":
+					if  info.find("Name: ") != -1:
+						user.name = foo
+						continue
+					if  info.find("Posts") != -1:
+						user.post = foo
+						continue
+					if  info.find("Activity") != -1:
+						user.activity = foo
+						continue
+					if  info.find("Position") != -1:
+						user.positon = foo
+						continue
+					if  info.find("Date Refistered") != -1:
+						user.registerData = foo
+						continue
+					if  info.find("Last Active") != -1:
+						user.lastData = foo
+						continue
+					if  info.find("Email: ") != -1:
+						user.Email = foo
+						continue
+					if  info.find("Gender") != -1:
+						user.gender = foo
+						continue
+					if  info.find("Age") != -1:
+						user.age = foo
+						continue
+					if  info.find("") != -1:
+						user.bitcoinAddress = foo
+						continue
 			except:
 				log.message("out of index!!!")
 				break
