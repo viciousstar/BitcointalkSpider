@@ -2,30 +2,29 @@ import scrapy
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
 from BitcointalkSpider.items import User, Post
-import scrapy.log
+from scrapy import log
 
 class btspider(scrapy.contrib.spiders.CrawlSpider):
 
 	name = "btspider"
 	allowed_domains = ["bitcointalk.org"]
-	start_url = ["https://bitcointalk.org/index.php"]
+	start_urls = ["https://bitcointalk.org/index.php"]
 
 	rules =  (
 		#rule for board
-		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?board=\d+\.\d+"))),
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?board=\d+\.\d+", ) ) ),
 		#rule for post, the "follow is true" is for  continuing extract
-		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d"),),
-			callback = "extractPost",
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d", ), ),
+			"extractPost",
 			follow = True),
 		#rule for use
-		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?action=profile;u=\d+"), ),
-			callback = "extractUser")
-
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?action=profile;u=\d+", ), ),
+			"extractUser")
 		)
 
 	def extractPost(self, response):
 		post = Post()
-		post.topic = response.xpath("//*[id = 'top_subject']/text()").extract().spilt(":")[1]
+		post.topic = response.xpath("//*[@id = 'top_subject']/text()")[0].extract().split(":")[1]
 		post.content = []
 		#every post' tr  in different board have different  @class, pretr is the first character of class attribute
 		preTr =  response.xpath("//*[@id = 'quickModForm']/table[1]/tr[1]/@class").extract()[0][0]
@@ -89,6 +88,6 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 						user.bitcoinAddress = foo
 						continue
 			except:
-				log.message("out of index!!!")
+				log.msg("out of index!!!")
 				break
 		return user
