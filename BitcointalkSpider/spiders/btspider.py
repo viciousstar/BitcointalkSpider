@@ -15,36 +15,36 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?board=\d+\.\d+", ) ) ),
 		#rule for post, the "follow is true" is for  continuing extract
 		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d", ), ),
-			"extractPost",
+			callback = "extractPost",
 			follow = True),
 		#rule for use
 		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?action=profile;u=\d+", ), ),
-			"extractUser")
+			callback = "extractUser")
 		)
 
 	def extractPost(self, response):
 		post = Post()
-		post.topic = response.xpath("//*[@id = 'top_subject']/text()")[0].extract().split(":")[1]
-		post.content = []
+		post["topic"] = response.xpath("//*[@id = 'top_subject']/text()")[0].extract().split(":")[1]
+		post["content"] = []
 		#every post' tr  in different board have different  @class, pretr is the first character of class attribute
 		preTr =  response.xpath("//*[@id = 'quickModForm']/table[1]/tr[1]/@class").extract()[0][0]
 		#every post
 		smallPost = response.xpath("//*[@id = 'quickModForm']/table[1]//tr[start-with(@class, preTr)]")
-		post.user = smallPost[0].xpath("//a[1]/text()").extract()
-		post.time = smallPost[0].xpath("//*[@class = 'smalltext']/text()").extract()
-		post.url = response.url
+		post["user"] = smallPost[0].xpath("//a[1]/text()").extract()
+		post["time"] = smallPost[0].xpath("//*[@class = 'smalltext']/text()").extract()
+		post["url"] = response.url
 		boardlist = response.xpath("//div[@class = 'nav'][1]//text")
 		#every is a of
-		post.ofBoard = [boardlist[0], boardlist[2], boardlist[4], boardlist[8]]
+		post["ofBoard"] = [boardlist[0], boardlist[2], boardlist[4], boardlist[8]]
 		#store every post partly by loop
 		for  everyPost in smallPost:			
 			smallpost = Post()
-			smallpost.user = everyPost.xpath("//a[1]/text()").extract()
-			smallpost.topic = everyPost.xpath("//*[@class = 'subject']/a/text()").extract()
-			smallpost.time =  everyPost.xpath("//*[@class = 'smalltext']/text()").extract()
-			smallpost.content = everyPost.xpath("//div[@class = 'post']/text()").extract()
+			smallpost["user"] = everyPost.xpath("//a[1]/text()").extract()
+			smallpost["topic"] = everyPost.xpath("//*[@class = 'subject']/a/text()").extract()
+			smallpost["time"] =  everyPost.xpath("//*[@class = 'smalltext']/text()").extract()
+			smallpost["content"] = everyPost.xpath("//div[@class = 'post']/text()").extract()
 			post.append(smallPost)
-
+		print post
 		return post
 
 	def extractUser(self, response):
@@ -58,36 +58,37 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 				foo = list_userinfo[index + 2][1].strip()
 				if foo != "":
 					if  info.find("Name: ") != -1:
-						user.name = foo
+						user["name"] = foo
 						continue
 					if  info.find("Posts") != -1:
-						user.post = foo
+						user["post"] = foo
 						continue
 					if  info.find("Activity") != -1:
-						user.activity = foo
+						user["activity"] = foo
 						continue
 					if  info.find("Position") != -1:
-						user.positon = foo
+						user["positon"] = foo
 						continue
 					if  info.find("Date Refistered") != -1:
-						user.registerData = foo
+						user["registerData"] = foo
 						continue
 					if  info.find("Last Active") != -1:
-						user.lastData = foo
+						user["lastData"] = foo
 						continue
 					if  info.find("Email: ") != -1:
-						user.Email = foo
+						user["Email"] = foo
 						continue
 					if  info.find("Gender") != -1:
-						user.gender = foo
+						user["gender"] = foo
 						continue
 					if  info.find("Age") != -1:
-						user.age = foo
+						user["age"] = foo
 						continue
 					if  info.find("") != -1:
-						user.bitcoinAddress = foo
+						user["bitcoinAddress"] = foo
 						continue
 			except:
 				log.msg("out of index!!!")
 				break
+		print user
 		return user
