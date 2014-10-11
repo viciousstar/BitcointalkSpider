@@ -27,24 +27,27 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 		post["topic"] = response.xpath("//*[@id = 'top_subject']/text()")[0].extract().split(":")[1]
 		post["content"] = []
 		#every post' tr  in different board have different  @class, pretr is the first character of class attribute
-		preTr =  response.xpath("//*[@id = 'quickModForm']/table[1]/tr[1]/@class").extract()[0][0]
+		#starts-with(arg1, arg2), the extract function return unicode string, but the two arg of start-with need string object
+		preTr =  str(response.xpath("//*[@id = 'quickModForm']/table[1]/tr[1]/@class").extract()[0][0])
 		#every post
-		smallPost = response.xpath("//*[@id = 'quickModForm']/table[1]//tr[start-with(@class, preTr)]")
-		post["user"] = smallPost[0].xpath("//a[1]/text()").extract()
-		post["time"] = smallPost[0].xpath("//*[@class = 'smalltext']/text()").extract()
+		smallPost = response.xpath("//*[@id = 'quickModForm']/table[1]//tr[@class and starts-with(@class, preTr)]")
+		i# if we want to continue use xpath on exsit xpath, we must add "." to represent the present node
+		post["user"] = smallPost[0].xpath("(.//a[@href])[1]/text()").extract()
+		post["time"] = smallPost[0].xpath("(.//div[@class = 'smalltext'])[2]/text()").extract()
 		post["url"] = response.url
-		boardlist = response.xpath("//div[@class = 'nav'][1]//text")
+		boardlist = response.xpath("//a[@class = 'nav']/text()").extract()
 		#every is a of
-		post["ofBoard"] = [boardlist[0], boardlist[2], boardlist[4], boardlist[8]]
+		#lenBoardlist //a[@class = 'nav']/text() occur two postion (head and tail)
+		lenBoardlist = len(boardlist) / 2
+		post["ofBoard"] = [boardlist[x] for x in range(0, lenBoardlist)]
 		#store every post partly by loop
 		for  everyPost in smallPost:			
 			smallpost = Post()
-			smallpost["user"] = everyPost.xpath("//a[1]/text()").extract()
-			smallpost["topic"] = everyPost.xpath("//*[@class = 'subject']/a/text()").extract()
-			smallpost["time"] =  everyPost.xpath("//*[@class = 'smalltext']/text()").extract()
-			smallpost["content"] = everyPost.xpath("//div[@class = 'post']/text()").extract()
-			post.append(smallPost)
-		print post
+			smallpost["user"] = everyPost.xpath("(.//a[@href])[1]/text()").extract()
+			smallpost["topic"] = everyPost.xpath(".//*[@class = 'subject']/a/text()").extract()
+			smallpost["time"] =  everyPost.xpath(".//*[@class = 'smalltext']/text()").extract()
+			smallpost["content"] = everyPost.xpath(".//div[@class = 'post']/text()").extract()
+			post[content].append(smallPost)
 		return post
 
 	def extractUser(self, response):
@@ -90,5 +93,4 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 			except:
 				log.msg("out of index!!!")
 				break
-		print user
 		return user
