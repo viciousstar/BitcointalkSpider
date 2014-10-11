@@ -26,11 +26,11 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 		post = Post()
 		post["topic"] = response.xpath("//*[@id = 'top_subject']/text()")[0].extract().split(":")[1]
 		post["content"] = []
-		#every post' tr  in different board have different  @class, pretr is the first character of class attribute
+		#every post' tr  in different board have different  @class, tr is the first character of class attribute
 		#starts-with(arg1, arg2), the extract function return unicode string, but the two arg of start-with need string object
-		preTr =  str(response.xpath("//*[@id = 'quickModForm']/table[1]/tr[1]/@class").extract()[0][0])
+		tr =  str(response.xpath("//*[@id = 'quickModForm']/table[1]/tr[1]/@class").extract()[0])
 		#every post
-		smallPost = response.xpath("//*[@id = 'quickModForm']/table[1]//tr[@class and starts-with(@class, preTr)]")
+		smallPost = response.xpath("//*[@id = 'quickModForm']/table[1]//tr[@class and @class = '%s']" % tr)
 		i# if we want to continue use xpath on exsit xpath, we must add "." to represent the present node
 		post["user"] = smallPost[0].xpath("(.//a[@href])[1]/text()").extract()
 		post["time"] = smallPost[0].xpath("(.//div[@class = 'smalltext'])[2]/text()").extract()
@@ -45,9 +45,9 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 			smallpost = Post()
 			smallpost["user"] = everyPost.xpath("(.//a[@href])[1]/text()").extract()
 			smallpost["topic"] = everyPost.xpath(".//*[@class = 'subject']/a/text()").extract()
-			smallpost["time"] =  everyPost.xpath(".//*[@class = 'smalltext']/text()").extract()
+			smallpost["time"] =  everyPost.xpath("(.//div[@class = 'smalltext'])[2]/text()").extract()
 			smallpost["content"] = everyPost.xpath(".//div[@class = 'post']/text()").extract()
-			post[content].append(smallPost)
+			post["content"].append(smallPost)
 		return post
 
 	def extractUser(self, response):
@@ -60,7 +60,7 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 			try:
 				foo = list_userinfo[index + 2][1].strip()
 				if foo != "":
-					if  info.find("Name: ") != -1:
+					if  info.find("Name") != -1:
 						user["name"] = foo
 						continue
 					if  info.find("Posts") != -1:
