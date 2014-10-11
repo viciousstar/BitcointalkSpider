@@ -31,7 +31,7 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 		tr =  str(response.xpath("//*[@id = 'quickModForm']/table[1]/tr[1]/@class").extract()[0])
 		#every post
 		smallPost = response.xpath("//*[@id = 'quickModForm']/table[1]//tr[@class and @class = '%s']" % tr)
-		i# if we want to continue use xpath on exsit xpath, we must add "." to represent the present node
+		i# if we want tocontinue use xpath on exsit xpath, we must add "." to represent the present node
 		post["user"] = smallPost[0].xpath("(.//a[@href])[1]/text()").extract()
 		post["time"] = smallPost[0].xpath("(.//div[@class = 'smalltext'])[2]/text()").extract()
 		post["url"] = response.url
@@ -52,45 +52,71 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 
 	def extractUser(self, response):
 		user = User()
-		userinfo = response.xpath("//table[@align = 'center' and @cellpadding = '4']//text()").extract()
+		userinfo = response.xpath("//table[@border = '0'  and @cellpadding = '2']/tr")
 		# extract every info form list of  userinfo
-		list_userinfo = enumerate(userinfo)
-		for index, info in list_userinfo:
-			#avoid list out of index
-			try:
-				foo = list_userinfo[index + 2][1].strip()
-				if foo != "":
-					if  info.find("Name") != -1:
-						user["name"] = foo
-						continue
-					if  info.find("Posts") != -1:
-						user["post"] = foo
-						continue
-					if  info.find("Activity") != -1:
-						user["activity"] = foo
-						continue
-					if  info.find("Position") != -1:
-						user["positon"] = foo
-						continue
-					if  info.find("Date Refistered") != -1:
-						user["registerData"] = foo
-						continue
-					if  info.find("Last Active") != -1:
-						user["lastData"] = foo
-						continue
-					if  info.find("Email: ") != -1:
-						user["Email"] = foo
-						continue
-					if  info.find("Gender") != -1:
-						user["gender"] = foo
-						continue
-					if  info.find("Age") != -1:
-						user["age"] = foo
-						continue
-					if  info.find("") != -1:
-						user["bitcoinAddress"] = foo
-						continue
-			except:
-				log.msg("out of index!!!")
-				break
+		for character in userinfo:
+			text = filter(unicode.strip, character.xpath(".//text()").extract())
+			lenText = len(text)
+			textname = text[0]
+			text.pop[0]
+			if  textname.find("Name") != -1:
+				if len > 1:
+					user["name"] = text
+				else:
+					user["name"] = None
+				continue
+			if  textname.find("Posts") != -1:
+				if len > 1:
+					user["post"] = text
+				else:
+					user["post"] = None
+				continue
+			if  textname.find("Activity") != -1:
+				if len > 1:
+					user["activity"] = text
+				else:
+					user["activity"] = None
+				continue
+			if  textname.find("Position") != -1:
+				if len > 1:
+					user["positon"] = text
+				else:
+					user["position"] = None
+				continue
+			if  textname.find("Date Refistered") != -1:
+				if len > 1:
+					user["registerData"] = text
+				else:
+					user["registerData"] = None
+				continue
+			if  textname.find("Last Active") != -1:
+				if len > 1:
+					user["lastData"] = text
+				else:
+					user["lastData"] = None
+				continue
+			if  textname.find("Email: ") != -1:
+				if len > 1:
+					user["Email"] = text
+				else:
+					user["Email"] = None
+				continue
+			if  textname.find("Gender") != -1:
+				if len > 1:
+					user["gender"] = text
+				else:
+					user["gender"] = None
+				continue
+			if  textname.find("Age") != -1:
+				if len > 1:
+					user["age"] = text
+				else:
+					user["age"] = None
+				continue
+			if  textname.find("") != -1:
+				if len > 1:
+					user["bitcoinAddress"] = text
+				else:
+					user["bitcoinAddress"] = None
+				continue
 		return user
