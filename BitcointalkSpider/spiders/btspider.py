@@ -9,7 +9,7 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 	name = "btspider"
 	allowed_domains = ["bitcointalk.org"]
 	start_urls = ["https://bitcointalk.org/index.php"]
-
+ 	
 	rules =  (
 		#rule for board
 		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?board=\d+\.\d+", ) ) ),
@@ -31,7 +31,7 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 		tr =  str(response.xpath("//*[@id = 'quickModForm']/table[1]/tr[1]/@class").extract()[0])
 		#every post
 		smallPost = response.xpath("//*[@id = 'quickModForm']/table[1]//tr[@class and @class = '%s']" % tr)
-		i# if we want tocontinue use xpath on exsit xpath, we must add "." to represent the present node
+		# if we want tocontinue use xpath on exsit xpath, we must add "." to represent the present node
 		post["user"] = smallPost[0].xpath("(.//a[@href])[1]/text()").extract()
 		post["time"] = smallPost[0].xpath("(.//div[@class = 'smalltext'])[2]/text()").extract()
 		post["url"] = response.url
@@ -47,7 +47,8 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 			smallpost["topic"] = everyPost.xpath(".//*[@class = 'subject']/a/text()").extract()
 			smallpost["time"] =  everyPost.xpath("(.//div[@class = 'smalltext'])[2]/text()").extract()
 			smallpost["content"] = everyPost.xpath(".//div[@class = 'post']/text()").extract()
-			post["content"].append(smallPost)
+			post["content"].append(smallpost)
+		print post
 		return post
 
 	def extractUser(self, response):
@@ -56,67 +57,70 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 		# extract every info form list of  userinfo
 		for character in userinfo:
 			text = filter(unicode.strip, character.xpath(".//text()").extract())
-			lenText = len(text)
-			textname = text[0]
-			text.pop[0]
-			if  textname.find("Name") != -1:
-				if len > 1:
-					user["name"] = text
-				else:
-					user["name"] = None
-				continue
-			if  textname.find("Posts") != -1:
-				if len > 1:
-					user["post"] = text
-				else:
-					user["post"] = None
-				continue
-			if  textname.find("Activity") != -1:
-				if len > 1:
-					user["activity"] = text
-				else:
-					user["activity"] = None
-				continue
-			if  textname.find("Position") != -1:
-				if len > 1:
-					user["positon"] = text
-				else:
-					user["position"] = None
-				continue
-			if  textname.find("Date Refistered") != -1:
-				if len > 1:
-					user["registerData"] = text
-				else:
-					user["registerData"] = None
-				continue
-			if  textname.find("Last Active") != -1:
-				if len > 1:
-					user["lastData"] = text
-				else:
-					user["lastData"] = None
-				continue
-			if  textname.find("Email: ") != -1:
-				if len > 1:
-					user["Email"] = text
-				else:
-					user["Email"] = None
-				continue
-			if  textname.find("Gender") != -1:
-				if len > 1:
-					user["gender"] = text
-				else:
-					user["gender"] = None
-				continue
-			if  textname.find("Age") != -1:
-				if len > 1:
-					user["age"] = text
-				else:
-					user["age"] = None
-				continue
-			if  textname.find("") != -1:
-				if len > 1:
-					user["bitcoinAddress"] = text
-				else:
-					user["bitcoinAddress"] = None
+			if  text != []:
+				lenText = len(text)
+				textname = text[0]
+				text.pop(0)
+				if  textname.find("Name") != -1:
+					if len > 1:
+						user["name"] = text
+					else:
+						user["name"] = None
+					continue
+				if  textname.find("Posts") != -1:
+					if len > 1:
+						user["posts"] = text
+					else:
+						user["posts"] = None
+					continue
+				if  textname.find("Activity") != -1:
+					if len > 1:
+						user["activity"] = text
+					else:
+						user["activity"] = None
+					continue
+				if  textname.find("Position") != -1:
+					if len > 1:
+						user["position"] = text
+					else:
+						user["position"] = None
+					continue
+				if  textname.find("Date Refistered") != -1:
+					if len > 1:
+						user["registerData"] = text
+					else:
+						user["registerData"] = None
+					continue
+				if  textname.find("Last Active") != -1:
+					if len > 1:
+						user["lastData"] = text
+					else:
+						user["lastData"] = None
+					continue
+				if  textname.find("Email: ") != -1:
+					if len > 1:
+						user["Email"] = text
+					else:
+						user["Email"] = None
+					continue
+				if  textname.find("Gender") != -1:
+					if len > 1:
+						user["gender"] = text
+					else:
+						user["gender"] = None
+					continue
+				if  textname.find("Age") != -1:
+					if len > 1:
+						user["age"] = text
+					else:
+						user["age"] = None
+					continue
+				if  textname.find("Signature") != -1:
+					if len > 1:
+						user["bitcoinAddress"] = text
+					else:
+						user["bitcoinAddress"] = None
+					continue
+			else:
 				continue
 		return user
