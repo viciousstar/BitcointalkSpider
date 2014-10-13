@@ -19,7 +19,7 @@ COOKIES_ENABLED = False
 # this time have to reset
 DOWNLOAD_TIMEOUT = 50
 
-DOWNLOAD_DELAY = 2
+DOWNLOAD_DELAY = 1
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'BitcointalkSpider (+http://www.yourdomain.com)'
