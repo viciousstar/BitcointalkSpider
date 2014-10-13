@@ -48,7 +48,6 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 			smallpost["time"] =  everyPost.xpath("(.//div[@class = 'smalltext'])[2]/text()").extract()
 			smallpost["content"] = everyPost.xpath(".//div[@class = 'post']/text()").extract()
 			post["content"].append(smallpost)
-		print post
 		return post
 
 	def extractUser(self, response):
