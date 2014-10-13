@@ -23,7 +23,7 @@ DOWNLOAD_DELAY = 1
 # get out of debug stage
 LOG_LEVEL = 'INFO'
 # turn up speed of spider
-CONCURRENT_REQUESTS_PER_DOMAIN = 20
-CONCURRENT_REQUESTS = 20
+CONCURRENT_REQUESTS_PER_DOMAIN = 50
+CONCURRENT_REQUESTS = 50
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'BitcointalkSpider (+http://www.yourdomain.com)'
