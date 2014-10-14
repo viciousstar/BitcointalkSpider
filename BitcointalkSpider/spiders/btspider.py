@@ -33,7 +33,7 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 		smallPost = response.xpath("//*[@id = 'quickModForm']/table[1]//tr[@class and @class = '%s']" % tr)
 		# if we want tocontinue use xpath on exsit xpath, we must add "." to represent the present node
 		post["user"] = smallPost[0].xpath("(.//a[@href])[1]/text()").extract()
-		post["time"] = smallPost[0].xpath("(.//div[@class = 'smalltext'])[2]/text()").extract()
+		post["time"] = smallPost[0].xpath("(.//div[@class = 'smalltext'])[2]//text()").extract()
 		post["url"] = response.url
 		boardlist = response.xpath("//a[@class = 'nav']/text()").extract()
 		#every is a of
