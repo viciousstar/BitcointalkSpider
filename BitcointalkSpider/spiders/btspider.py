@@ -14,7 +14,7 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 		#rule for board
 		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?board=\d+\.\d+", ) ) ),
 		#rule for post, the "follow is true" is for  continuing extract
-		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d", ), ),
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d+", ), ),
 			callback = "extractPost",
 			follow = True),
 		#rule for use
