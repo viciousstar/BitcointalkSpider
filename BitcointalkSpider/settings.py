@@ -19,11 +19,15 @@ COOKIES_ENABLED = False
 # this time have to reset
 DOWNLOAD_TIMEOUT = 15
 
-DOWNLOAD_DELAY = 1
+DOWNLOAD_DELAY = 0.2
 # get out of debug stage
-LOG_LEVEL = 'INFO'
+LOG_LEVEL = "DEBUG"
 # turn up speed of spider
-CONCURRENT_REQUESTS_PER_DOMAIN = 50
-CONCURRENT_REQUESTS = 50
+CONCURRENT_REQUESTS_PER_DOMAIN = 300
+CONCURRENT_REQUESTS = 300
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'BitcointalkSpider (+http://www.yourdomain.com)'
+#取消默认的useragent,使用新的useragent
+DOWNLOADER_MIDDLEWARES = {
+        'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware' : None,
+        'BitcointalkSpider.rotate_useragent.RotateUserAgentMiddleware' :400
+    }
