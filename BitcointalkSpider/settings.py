@@ -19,9 +19,9 @@ COOKIES_ENABLED = False
 # this time have to reset
 DOWNLOAD_TIMEOUT = 15
 
-DOWNLOAD_DELAY = 0.2
+DOWNLOAD_DELAY = 1
 # get out of debug stage
-LOG_LEVEL = "DEBUG"
+LOG_LEVEL = "INFO"
 # turn up speed of spider
 CONCURRENT_REQUESTS_PER_DOMAIN = 300
 CONCURRENT_REQUESTS = 300
