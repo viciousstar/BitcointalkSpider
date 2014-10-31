@@ -9,7 +9,7 @@
 #
 
 BOT_NAME = 'BitcointalkSpider'
-SPIDER_WORK_DIR = '/home/thl/project/BitcointalkSpider'
+SPIDER_WORK_DIR = '/home/thl/project/BitcointalkSpider/Data'
 SPIDER_MODULES = ['BitcointalkSpider.spiders']
 NEWSPIDER_MODULE = 'BitcointalkSpider.spiders'
 # retry

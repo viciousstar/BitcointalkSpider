@@ -1,7 +1,7 @@
 import scrapy
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
-from BitcointalkSpider.items import User, Post
+from BitcointalkSpider.items import User, Post, Thread
 from scrapy import log
 
 class btspider(scrapy.contrib.spiders.CrawlSpider):
@@ -143,13 +143,13 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 
 	rules =  (
 		#rule for board
-		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?board=\d+\.\d+", ) ) ),
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?board=\d+\.\d+$", ), deny = (denyboard)) ),
 		#rule for post, the "follow is true" is for  continuing extract
-		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d+", ), deny = (denyboard)),
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d+$", ),),
 			callback = "extractPost",
 			follow = True),
 		#rule for use
-		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?action=profile;u=\d+", ), ),
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?action=profile;u=\d+$", ), ),
 			callback = "extractUser")
 		)
 
@@ -178,7 +178,7 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 			smallpost["topic"] = everyPost.xpath(".//*[@class = 'subject']/a/text()").extract()
 			smallpost["time"] =  everyPost.xpath("(.//div[@class = 'smalltext'])[2]/text()").extract()
 			smallpost["content"] = everyPost.xpath(".//div[@class = 'post']/text()").extract()
-			post["content"].append(smallpost)
+			post["content"].append(dict(smallpost))
 		return post
 
 	def extractUser(self, response):

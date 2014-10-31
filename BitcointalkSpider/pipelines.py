@@ -18,41 +18,58 @@ class JsonWithEncodingPipeline(object):
 	def __init__(self):
 		pass
 	def process_item(self, item, spider):
-		if  item.__class__ == User
+		if  item.__class__ == User:
 		#time format 
 		#time.strptime(str, "%B %d, %Y, %H:%M:%S %p")
 			rtimelen = len(item["registerDate"])
 			localtime = time.localtime()
-			if rtimelen == 1:
-				usertime = time.strptime(item["registerDate"][0].__str__(), "%B %d, %Y, %I:%M:%S %p")
-			if rtimelen == 2:
-				usertime  = localtime
-			userpath = os.path.join(SPIDER_WORK_DIR, usertime.tm_year + usertime.tm_mon)
-			if os.path.exsits(userpath):
+			try:
+				if rtimelen == 1:
+					usertime = time.strptime(item["registerDate"][0].__str__(), "%B %d, %Y, %I:%M:%S %p")
+				if rtimelen == 2:
+					usertime  = localtime
+			except:
+				usertime = time.struct_time([0 for i in range(9)])
+			userpath = os.path.join(SPIDER_WORK_DIR, "User", str(usertime.tm_year) + str(usertime.tm_mon))
+			if os.path.exists(userpath):
 				pass
 			else:
-				os.path.makedirs(userpath)
-			userfile = codecs.open(userpath + item["name"][0].__str__(), "ab", encoding = "utf-8")
+				os.makedirs(userpath)
+			try:
+				eachuserfile = os.path.join(userpath, item["name"][0].__str__())
+			except:
+				eachuserfile = os.path.join(userpath, "NONENAME")
+			userfile = codecs.open(eachuserfile, "ab", encoding = "utf-8")
 			line = json.dumps(dict(item), ensure_ascii=False) + "\n"
 			userfile.write(line)
 			userfile.close()
 
 		if item.__class__ == Thread:
-			rtimelen = len(item["registerDate"])
+			'''	sort by time
+			try:
+				time = item["time"][0].__str__()
+			else:
+
 			localtime = time.localtime()
-			if rtimelen == 1:
-				usertime = time.strptime(item["time"][0].__str__(), "%B %d, %Y, %I:%M:%S %p")
-			if rtimelen == 2:
+			if time.find("at") == -1:
+				usertime = time.strptime(time, "%B %d, %Y, %I:%M:%S %p")
+			else:
 				usertime  = localtime	#aboutly equal, but lastest they date is equal, this is enough
-			Threadpath = reduce(os.path.join, map(lambda x: unicode.encode(x, "utf-8"), item["ofBoard"], SPIDER_WORK_DIR)
-			if os.path.exsits(Threadpath):
+			'''
+			Thread_work_dir = os.path.join(SPIDER_WORK_DIR, "Thread")
+			if item["ofBoard"] != []:
+				Threadpath = reduce(os.path.join, map(lambda x: unicode.encode(x, "utf-8"), item["ofBoard"]), Thread_work_dir)
+			else:
+				Threadpath = os.path.join(Thread_work_dir, "NONEBOARD")
+			if os.path.exists(Threadpath):
 				pass
 			else:
-				os.path.makedirs(Threadpath)
-			Threadfile = codecs.open(Threadpath + item["url"].spilt("=")[1].__str__(), "ab", encoding = "utf-8")
+				os.makedirs(Threadpath)
+			eachThreadfile = os.path.join(Threadpath, item["url"].split("=")[1].__str__())
+			Threadfile = codecs.open(eachThreadfile, "ab", encoding = "utf-8")
 			#There we can add some \n to make it comfortable for people to read
 			line = json.dumps(dict(item), ensure_ascii=False) + "\n"
-			userfile.write(line)
+			Threadfile.write(line)
 			Threadfile.close()
 
 		return item
