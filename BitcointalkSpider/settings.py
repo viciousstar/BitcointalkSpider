@@ -21,7 +21,7 @@ DOWNLOAD_TIMEOUT = 15
 
 DOWNLOAD_DELAY = 1
 # get out of debug stage
-LOG_LEVEL = "DEBUG"
+LOG_LEVEL = "INFO"
 # turn up speed of spider
 #LOG_FILE = "scrapy.log"
 CONCURRENT_REQUESTS_PER_DOMAIN = 300
