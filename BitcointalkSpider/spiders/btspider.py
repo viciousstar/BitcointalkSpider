@@ -14,7 +14,7 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 		#rule for board
 		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?board=\d+\.\d+", ) ) ),
 		#rule for post, the "follow is true" is for  continuing extract
-		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d", ), ),
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d+", ), ),
 			callback = "extractPost",
 			follow = True),
 		#rule for use
@@ -33,7 +33,7 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 		smallPost = response.xpath("//*[@id = 'quickModForm']/table[1]//tr[@class and @class = '%s']" % tr)
 		# if we want tocontinue use xpath on exsit xpath, we must add "." to represent the present node
 		post["user"] = smallPost[0].xpath("(.//a[@href])[1]/text()").extract()
-		post["time"] = smallPost[0].xpath("(.//div[@class = 'smalltext'])[2]/text()").extract()
+		post["time"] = smallPost[0].xpath("(.//div[@class = 'smalltext'])[2]//text()").extract()
 		post["url"] = response.url
 		boardlist = response.xpath("//a[@class = 'nav']/text()").extract()
 		#every is a of
