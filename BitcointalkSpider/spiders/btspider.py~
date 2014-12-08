@@ -8,7 +8,7 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 
 	name = "btspider"
 	allowed_domains = ["bitsharestalk.org"]
-	start_urls = ["https://bitsharestalk.org/index\.php"]
+	start_urls = ["https://bitsharestalk.org/index.php"]
 	'''
 	some local language boards are be deny to extract, but this method may disable in the case that
 	other topic or board quoat this denied topic, but this must be little, so we ignore them.
@@ -19,7 +19,6 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 	b = map(str, a)
 	Now I don't know how to use it in the script, I feel I was bound on the CrawlSpider!!!
 	If  the struction of the board is not change, this part will work well
-	'''
 	'''
 	denyboard = ['https://bitcointalk.org/index\.php\?board=191\.\d+', 
 		          'https://bitcointalk.org/index\.php\?board=193\.\d+', 
@@ -141,43 +140,117 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 		          'https://bitcointalk.org/index\.php\?board=174\.\d+', 
 		          'https://bitcointalk.org/index\.php\?board=11\.\d+' 
 		          ]
-'''
+
 	rules =  (
-		Rule(LinkExtractor(allow = ("https://bitsharestalk\.org/index\.php\?\S*board=\d+\.\d+$", )), process_links = 'link_filtering'),
-		Rule(LinkExtractor(allow = ("https://bitsharestalk\.org/index\.php\?\S*topic=\d+\.\d+$", ),),
+		#rule for board
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?board=\d+\.\d+$", ), deny = (denyboard)) ),
+		#rule for post, the "follow is true" is for  continuing extract
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d+$", ),),
 			callback = "extractPost",
-			follow = True, process_links = 'link_filtering'),
-		Rule(LinkExtractor(allow = ("https://bitsharestalk\.org/index\.php\?\S*action=profile;u=\d+$", ),),
-			callback = "extractUser", process_links = 'link_filtering')
+			follow = True),
+		#rule for use
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?action=profile;u=\d+$", ), ),
+			callback = "extractUser")
 		)
-	def link_filtering(self, links):
-	        	ret = []
-	        	for link in links:
-	        		url = link.url
-	        		urlfirst, urllast = url.split("?")
-	        		if urllast:
-	        			link.url = urlfirst + "?" + urllast.split("&")[1]
-	        	return links
+
 	def extractPost(self, response):
 		post = Thread()
-		post["topic"] =  response.xpath("//*[@id='forumposts']/div/h3/text()").extract()[-1].split(":")[-1]
+		post["topic"] = response.xpath("//*[@id = 'top_subject']/text()")[0].extract().split(":")[1]
 		post["content"] = []
-		smallPost = response.xpath("//div[@class='post_wrapper']")
-		post["user"] = smallPost[0].xpath("./div[@class='poster']/h4/a/text()").extract()
-		post["time"] = smallPost[0].xpath("./div[@class='postarea']//div[@class='smalltext']/text()")[-1].extract()
+		#every post' tr  in different board have different  @class, tr is the first character of class attribute
+		#starts-with(arg1, arg2), the extract function return unicode string, but the two arg of start-with need string object
+		tr =  str(response.xpath("//*[@id = 'quickModForm']/table[1]/tr[1]/@class").extract()[0])
+		#every post
+		smallPost = response.xpath("//*[@id = 'quickModForm']/table[1]//tr[@class and @class = '%s']" % tr)
+		# if we want tocontinue use xpath on exsit xpath, we must add "." to represent the present node
+		post["user"] = smallPost[0].xpath("(.//a[@href])[1]/text()").extract()
+		post["time"] = smallPost[0].xpath("(.//div[@class = 'smalltext'])[2]/text()").extract()
 		post["url"] = response.url
-		boardlist = response.xpath("//div[@class='navigate_section']//a//text()").extract()
-		post["ofBoard"] = boardlist
+		boardlist = response.xpath("//a[@class = 'nav']/text()").extract()
+		#every is a of
+		#lenBoardlist //a[@class = 'nav']/text() occur two postion (head and tail)
+		lenBoardlist = len(boardlist) / 2
+		post["ofBoard"] = [boardlist[x] for x in range(0, lenBoardlist)]
+		#store every post partly by loop
 		for  everyPost in smallPost:			
 			smallpost = Post()
-			smallpost["user"] = everyPost.xpath("./div[@class='poster']/h4/a/text()").extract()
-			smallpost["topic"] = everyPost.xpath("//*[@id='forumposts']/div/h3/text()").extract()[-1].split(":")[-1]
-			smallpost["time"] =  everyPost.xpath("./div[@class='postarea']//div[@class='smalltext']/text()")[-1].extract()
-			smallpost["content"] = everyPost.xpath("./div[@class='postarea']/div[@class='post']//text()").extract()
+			smallpost["user"] = everyPost.xpath("(.//a[@href])[1]/text()").extract()
+			smallpost["topic"] = everyPost.xpath(".//*[@class = 'subject']/a/text()").extract()
+			smallpost["time"] =  everyPost.xpath("(.//div[@class = 'smalltext'])[2]/text()").extract()
+			smallpost["content"] = everyPost.xpath(".//div[@class = 'post']/text()").extract()
 			post["content"].append(dict(smallpost))
 		return post
 
 	def extractUser(self, response):
 		user = User()
-		user["name"] =  response.xpath("//div[@class='username']//text()")[0].extract() 
+		userinfo = response.xpath("//table[@border = '0'  and @cellpadding = '2']/tr")
+		# extract every info form list of  userinfo
+		for character in userinfo:
+			text = filter(unicode.strip, character.xpath(".//text()").extract())
+			if  text != []:
+				lenText = len(text)
+				textname = text[0]
+				text.pop(0)
+				if  textname.find("Name") != -1:
+					if len > 1:
+						user["name"] = text
+					else:
+						user["name"] = None
+					continue
+				if  textname.find("Posts") != -1:
+					if len > 1:
+						user["posts"] = text
+					else:
+						user["posts"] = None
+					continue
+				if  textname.find("Activity") != -1:
+					if len > 1:
+						user["activity"] = text
+					else:
+						user["activity"] = None
+					continue
+				if  textname.find("Position") != -1:
+					if len > 1:
+						user["position"] = text
+					else:
+						user["position"] = None
+					continue
+				if  textname.find("Date Registered") != -1:
+					if len > 1:
+						user["registerDate"] = text
+					else:
+						user["registerDate"] = None
+					continue
+				if  textname.find("Last Active") != -1:
+					if len > 1:
+						user["lastDate"] = text
+					else:
+						user["lastDate"] = None
+					continue
+				if  textname.find("Email: ") != -1:
+					if len > 1:
+						user["Email"] = text
+					else:
+						user["Email"] = None
+					continue
+				if  textname.find("Gender") != -1:
+					if len > 1:
+						user["gender"] = text
+					else:
+						user["gender"] = None
+					continue
+				if  textname.find("Age") != -1:
+					if len > 1:
+						user["age"] = text
+					else:
+						user["age"] = None
+					continue
+				if  textname.find("Signature") != -1:
+					if len > 1:
+						user["bitcoinAddress"] = text
+					else:
+						user["bitcoinAddress"] = None
+					continue
+			else:
+				continue
 		return user

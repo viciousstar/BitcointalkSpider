@@ -8,7 +8,7 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #
 
-BOT_NAME = 'BitcointalkSpider'
+BOT_NAME = 'Mozilla'
 SPIDER_WORK_DIR = '/home/thl/project/BitcointalkSpider/Data'
 SPIDER_MODULES = ['BitcointalkSpider.spiders']
 NEWSPIDER_MODULE = 'BitcointalkSpider.spiders'
