@@ -180,4 +180,24 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 	def extractUser(self, response):
 		user = User()
 		user["name"] =  response.xpath("//div[@class='username']//text()")[0].extract() 
+		userinfo = filter(unicode.strip, response.xpath("//*[@id='detailedinfo']/div[@class='windowbg2']/div[@class='content']//text()").extract())
+		if userinfo:
+			for text in range(0, len(userinfo), 2):
+				if userinfo[text].startswith("Posts"):
+					user["posts"] = userinfo[text + 1]
+					continue
+				elif userinfo[text].startswith("Age"):
+					user["age"] = userinfo[text + 1]
+					continue
+				elif userinfo[text].startswith("Last Active:"):
+					if userinfo[text + 1] = "Today"
+					user["Last Active:"] = [userinfo[text + 1], userinfo[text + 2]
+					text += 1
+					continue
+				elif userinfo[text].startswith("Date Registered"):
+					user["registerData"] = userinfo[text + 1]
+					continue
+				elif userinfo[text].startswith("Signature:"):
+					user["bitcoinAddress"] = userinfo[text + 1]
+					continue
 		return user
