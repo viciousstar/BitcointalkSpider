@@ -8,7 +8,7 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 
 	name = "btspider"
 	allowed_domains = ["bitsharestalk.org"]
-	start_urls = ["https://bitsharestalk.org/index\.php"]
+	start_urls = ["https://bitsharestalk.org"]
 	'''
 	some local language boards are be deny to extract, but this method may disable in the case that
 	other topic or board quoat this denied topic, but this must be little, so we ignore them.
@@ -143,20 +143,22 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 		          ]
 '''
 	rules =  (
-		Rule(LinkExtractor(allow = ("https://bitsharestalk\.org/index\.php\?\S*board=\d+\.\d+$", )), process_links = 'link_filtering'),
-		Rule(LinkExtractor(allow = ("https://bitsharestalk\.org/index\.php\?\S*topic=\d+\.\d+$", ),),
+		Rule(LinkExtractor(allow = ("https://bitsharestalk\.org/index\.php\?PHPSESSID\S*board=\d+\.\d+$", "https://bitsharestalk\.org/index\.php\?board=\d+\.\d+$")), process_links = 'link_filtering'),
+		Rule(LinkExtractor(allow = ("https://bitsharestalk\.org/index\.php\?PHPSESSID\S*topic=\d+\.\d+$", "https://bitsharestalk\.org/index\.php\?topic=\d+\.\d+$", ),),
 			callback = "extractPost",
 			follow = True, process_links = 'link_filtering'),
-		Rule(LinkExtractor(allow = ("https://bitsharestalk\.org/index\.php\?\S*action=profile;u=\d+$", ),),
+		Rule(LinkExtractor(allow = ("https://bitsharestalk\.org/index\.php\?PHPSESSID\S*action=profile;u=\d+$", "https://bitsharestalk\.org/index\.php\?action=profile;u=\d+$", ),),
 			callback = "extractUser", process_links = 'link_filtering')
 		)
 	def link_filtering(self, links):
 	        	ret = []
 	        	for link in links:
 	        		url = link.url
+	        		#print "This is the yuanlai ", link.url
 	        		urlfirst, urllast = url.split("?")
 	        		if urllast:
-	        			link.url = urlfirst + "?" + urllast.split("&")[1]
+	        			link.url = urlfirst + "?" + urllast.split("&", 1)[1]
+	        			#print link.url
 	        	return links
 	def extractPost(self, response):
 		post = Thread()
@@ -166,7 +168,7 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 		post["user"] = smallPost[0].xpath("./div[@class='poster']/h4/a/text()").extract()
 		post["time"] = smallPost[0].xpath("./div[@class='postarea']//div[@class='smalltext']/text()")[-1].extract()
 		post["url"] = response.url
-		boardlist = response.xpath("//div[@class='navigate_section']//a//text()").extract()
+		boardlist = response.xpath("//div[@class='navigate_section'][1]//a//text()").extract()
 		post["ofBoard"] = boardlist
 		for  everyPost in smallPost:			
 			smallpost = Post()
@@ -179,25 +181,34 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 
 	def extractUser(self, response):
 		user = User()
-		user["name"] =  response.xpath("//div[@class='username']//text()")[0].extract() 
+		user["name"] =  [response.xpath("//div[@class='username']//text()")[0].extract()]
 		userinfo = filter(unicode.strip, response.xpath("//*[@id='detailedinfo']/div[@class='windowbg2']/div[@class='content']//text()").extract())
 		if userinfo:
-			for text in range(0, len(userinfo), 2):
-				if userinfo[text].startswith("Posts"):
-					user["posts"] = userinfo[text + 1]
-					continue
-				elif userinfo[text].startswith("Age"):
-					user["age"] = userinfo[text + 1]
-					continue
-				elif userinfo[text].startswith("Last Active:"):
-					if userinfo[text + 1] = "Today"
-					user["Last Active:"] = [userinfo[text + 1], userinfo[text + 2]
-					text += 1
-					continue
-				elif userinfo[text].startswith("Date Registered"):
-					user["registerData"] = userinfo[text + 1]
-					continue
-				elif userinfo[text].startswith("Signature:"):
-					user["bitcoinAddress"] = userinfo[text + 1]
-					continue
+			try:
+				for text in range(0, len(userinfo), 2):
+					#print text, len(userinfo)
+					if userinfo[text].startswith("Posts"):
+						user["posts"] = userinfo[text + 1]
+						continue
+					elif userinfo[text].startswith("Age"):
+						user["age"] = userinfo[text + 1]
+						continue
+					elif userinfo[text].startswith("Last Active:"):
+						if userinfo[text + 1] == "Today":
+							user["lastDate"] = [userinfo[text + 1], userinfo[text + 2]]
+							userinfo.pop(text + 2)
+						else:
+							user["lastDate"] = [userinfo[text + 1]]
+					elif userinfo[text].startswith("Date Registered"):
+						if userinfo[text + 1] == "Today":
+							user["registerDate"] = [userinfo[text + 1], userinfo[text + 2]]
+							userinfo.pop(text + 2)
+
+						else:
+							user["registerDate"] = [userinfo[text + 1]]
+					elif userinfo[text].startswith("Signature:"):
+						user["bitcoinAddress"] = userinfo[text + 1]
+						continue
+			except:
+				return user
 		return user

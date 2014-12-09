@@ -26,8 +26,10 @@ class JsonWithEncodingPipeline(object):
 			try:
 				if rtimelen == 1:
 					usertime = time.strptime(item["registerDate"][0].__str__(), "%B %d, %Y, %I:%M:%S %p")
-				if rtimelen == 2:
-					usertime  = localtime
+				elif rtimelen == 2:
+					usertime = localtime
+				else:
+					usertime = time.struct_time([0 for i in range(9)])
 			except:
 				usertime = time.struct_time([0 for i in range(9)])
 			userpath = os.path.join(SPIDER_WORK_DIR, "User", str(usertime.tm_year) + str(usertime.tm_mon))
@@ -58,7 +60,9 @@ class JsonWithEncodingPipeline(object):
 			'''
 			Thread_work_dir = os.path.join(SPIDER_WORK_DIR, "Thread")
 			if item["ofBoard"] != []:
+				#print item["ofBoard"]
 				Threadpath = reduce(os.path.join, map(lambda x: unicode.encode(x, "utf-8"), item["ofBoard"]), Thread_work_dir)
+				#print Threadpath
 			else:
 				Threadpath = os.path.join(Thread_work_dir, "NONEBOARD")
 			if os.path.exists(Threadpath):
