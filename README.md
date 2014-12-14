@@ -2,7 +2,7 @@ BitcointalkSpider
 ================
 ##What this repo do?
 
-- Using scrapy to crawl some dates from www.bitcointalk.org for analysing relation between users activity and bitcoin price
+- Using scrapy to crawl some dates from www.bitcointalk.org and www.bitsharestalk.ort for analysing relation between users activity and bitcoin price
 
 ##You need before run it
 
