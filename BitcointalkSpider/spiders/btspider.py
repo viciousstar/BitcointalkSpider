@@ -4,21 +4,20 @@ from scrapy.contrib.linkextractors import LinkExtractor
 from BitcointalkSpider.items import User, Post, Thread
 from scrapy import log
 
-class btspider(scrapy.contrib.spiders.CrawlSpider):
+class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 
-	name = "btspider"
+	name = "btthreadspider"
 	allowed_domains = ["bitcointalk.org"]
 	start_urls = ["https://bitcointalk.org/index.php"]
+
 	rules =  (
 		#rule for board
-		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?board=\d+\.\d+$", ), deny = (denyboard)) ),
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?board=\d+\.\d+$", )),
 		#rule for post, the "follow is true" is for  continuing extract
-		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d+$", ),),
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d+$", )),
 			callback = "extractPost",
 			follow = True),
-		#rule for use
-		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?action=profile;u=\d+$", ), ),
-			callback = "extractUser")
+		)
 		)
 
 	def extractPost(self, response):
@@ -33,7 +32,6 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 		post["time"] = smallPost[0].xpath("(.//div[@class = 'smalltext'])[2]/text()").extract()
 		post["url"] = response.url
 		boardlist = response.xpath("//a[@class = 'nav']/text()").extract()
-		#every is a of
 		#lenBoardlist //a[@class = 'nav']/text() occur two postion (head and tail)
 		lenBoardlist = len(boardlist) / 2
 		post["ofBoard"] = [boardlist[x] for x in range(0, lenBoardlist)]
@@ -49,17 +47,19 @@ class btspider(scrapy.contrib.spiders.CrawlSpider):
 
 
 
-class btuesrspider(scrapy.contrib.spiders.CrawlSpider):
 
-	name = "btuesrspider"
+
+class btuserspider(scrapy.contrib.spiders.CrawlSpider):
+	name = "btuserspider"
 	allowed_domains = ["bitcointalk.org"]
-	start_urls = ["https://bitcointalk.org/index.php?action=mlist;sort=registered;desc;start=0"]
+	start_urls = ["https://bitcointalk.org/index.php?action=mlist;sort=registered;start=0;desc"]
+	
 	rules =  (
-
-		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index.\php\?action=mlist;sort=registered;desc;start=\d+", ), ),)
+		#rule for use
 		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?action=profile;u=\d+$", ), ),
 			callback = "extractUser")
-		)
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?action=mlist;sort=registered;start=\d+;desc", ), ),)
+		)			#may add renzheng
 
 	def extractUser(self, response):
 		user = User()
