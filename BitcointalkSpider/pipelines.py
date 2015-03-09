@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
-
 import json
 import codecs
 from BitcointalkSpider.items import User, Post, Thread
@@ -77,28 +72,3 @@ class JsonWithEncodingPipeline(object):
 	def spider_closed(self, spider):
 		pass
 
-
-'''
-some standard datas
-
-{"name": ["Uri"], 
-"gender": [], 
-"age": ["N/A"], 
-"posts": ["1"], 
-"lastData": ["August 10, 2014, 03:50:08 PM"], 
-"activity": ["1"], 
-"bitcoinAddress": [], 
-"position": ["Newbie"], 
-"Email": ["hidden"]},
-{"content": [{"topic": ["\u05de\u05e9\u05d7\u05e7\u05d9\u05dd \u05e2\u05dc \u05d1\u05d9\u05d8\u05e7\u05d5\u05d9\u05df"], 
-"content": ["\u05e9\u05dc\u05d5\u05dd \u05dc\u05db\u05d5\u05dc\u05dd,", "\u05de\u05d9\u05e9\u05d4\u05d5 \u05de\u05db\u05d9\u05e8 \u05de\u05e9\u05d7\u05e7\u05d9\u05dd \u05d8\u05d5\u05d1\u05d9\u05dd \u05d1\u05e8\u05e9\u05ea \u05e9\u05d0\u05e4\u05e9\u05e8 \u05dc\u05d4\u05e8\u05d5\u05d5\u05d9\u05d7 \u05d1\u05d9\u05d8\u05e7\u05d5\u05d9\u05df?"], 
-"user": ["johnatan32"], 
-"time": ["May 11, 2014, 04:32:14 PM"]}, {"topic": ["Re: \u05de\u05e9\u05d7\u05e7\u05d9\u05dd \u05e2\u05dc \u05d1\u05d9\u05d8\u05e7\u05d5\u05d9\u05df"], 
-"content": ["\u05d4\u05de\u05e9\u05d7\u05e7\u05d9\u05dd \u05d4\u05dd \u05e2\u05e4\"\u05e8 (\u05db\u05de\u05d5) \u05d4\u05d9\u05de\u05d5\u05e8\u05d9\u05dd - \u05dc\u05d0 \u05de\u05db\u05d9\u05e8 \u05d0\u05e3 \u05d0\u05d7\u05d3 \u05de\u05d4\u05dd... "], 
-"user": ["r1973"], 
-"time": ["May 11, 2014, 07:40:39 PM"]}], 
-"ofBoard": ["Bitcoin Forum", "Local", "\u05e2\u05d1\u05e8\u05d9\u05ea (Hebrew)", "\u05de\u05e9\u05d7\u05e7\u05d9\u05dd \u05e2\u05dc \u05d1\u05d9\u05d8\u05e7\u05d5\u05d9\u05df"], 
-"url": "https://bitcointalk.org/index.php?topic=604954.0", "topic": " \u05de\u05e9\u05d7\u05e7\u05d9\u05dd \u05e2\u05dc \u05d1\u05d9\u05d8\u05e7\u05d5\u05d9\u05df \u00a0(Read 323 times)\n\t\t\t\t", "user": ["johnatan32"], 
-"time": ["May 11, 2014, 04:32:14 PM"]},
-
-'''

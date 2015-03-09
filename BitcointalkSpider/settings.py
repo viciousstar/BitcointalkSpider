@@ -28,9 +28,9 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 300
 CONCURRENT_REQUESTS = 300
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #取消默认的useragent,使用新的useragent
-DOWNLOADER_MIDDLEWARES = {
-        'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware' : None,
-        'BitcointalkSpider.rotate_useragent.RotateUserAgentMiddleware' :400
-    }
+# DOWNLOADER_MIDDLEWARES = {
+#         'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware' : None,
+#         'BitcointalkSpider.rotate_useragent.RotateUserAgentMiddleware' :400
+#     }
 
 ITEM_PIPELINES = ['BitcointalkSpider.pipelines.JsonWithEncodingPipeline']
