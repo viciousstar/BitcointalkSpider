@@ -3,15 +3,31 @@
 import json
 import codecs
 from BitcointalkSpider.items import User, Post, Thread
-import time
 from BitcointalkSpider.settings import SPIDER_WORK_DIR
 import os
-
+from datetime import datetime
+import pymongo
+from pymongo import MongoClient
 
 class JsonWithEncodingPipeline(object):
 #solve outfile code question by output json
 	def __init__(self):
-		pass
+		try:
+			self.client = MongoClient()
+			self.db = client.bitdb
+		except:
+			print 'Please start Mongod.'
+			raise BaseException()
+		self.configfile = open('BitcointalkSpider/config.py', 'r+')
+        config = ConfigParser.ConfigParser()
+        config.readfp(self.configfile)
+        self.time = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S.%f')
+        try:
+        	self.db.creat_collection(str(self.time.year) + str(self.time.month))
+        except:
+        	pass
+        self.clt = self.db[str(self.time.year) + str(self.time.month)]
+
 	def process_item(self, item, spider):
 		if  item.__class__ == User:
 		#time format 
@@ -24,51 +40,55 @@ class JsonWithEncodingPipeline(object):
 				if rtimelen == 2:
 					usertime  = localtime
 			except:
-				usertime = time.struct_time([0 for i in range(9)])
-			userpath = os.path.join(SPIDER_WORK_DIR, "User", str(usertime.tm_year) + str(usertime.tm_mon))
-			if os.path.exists(userpath):
-				pass
+				usertime = None
+			if usertime > self.time
+				userpath = os.path.join(SPIDER_WORK_DIR, "User")
+				if os.path.exists(userpath):
+					pass
+				else:
+					os.makedirs(userpath)
+				self.userfile = codecs.open(str(self.time.year) + str(self.time.month), "ab", encoding = "utf-8")
+				line = json.dumps(dict(item), ensure_ascii=False) + "\n"
+				self.userfile.write(line)
+			    lastDate = datetime.strptime(item['lastDate'][0], '%B %d, %Y, %I:%M:%S %p')
+        		registerDate = datetime.strptime(item['registerDate'][0], '%B %d, %Y, %I:%M:%S %p')
+        		item['registerDate'] = registerDate
+        		item['year'] = registerDate.year
+        		item['month'] = registerDate.month
+        		item['day'] = registerDate.day 
+			    item['activity'] = int(item['activity'][0]) 
+        		item['posts'] = int(item['posts'][0])
+        		self.clt.save(item)
 			else:
-				os.makedirs(userpath)
-			try:
-				eachuserfile = os.path.join(userpath, item["name"][0].__str__())
-			except:
-				eachuserfile = os.path.join(userpath, "NONENAME")
-			userfile = codecs.open(eachuserfile, "ab", encoding = "utf-8")
-			line = json.dumps(dict(item), ensure_ascii=False) + "\n"
-			userfile.write(line)
-			userfile.close()
-
+				return None
 		if item.__class__ == Thread:
-			'''	sort by time
 			try:
 				time = item["time"][0].__str__()
+				if time.find("at") == -1:
+					usertime = time.strptime(time, "%B %d, %Y, %I:%M:%S %p")
+				else:
+					usertime  = localtime	#aboutly equal, but lastest they date is equal, this is enough
+			except:
+				time = None
+			if time > self.time:
+				Thread_work_dir = os.path.join(SPIDER_WORK_DIR, "Thread")
+				self.Threadfile = codecs.open(Thread_work_dir + str(self.time.year) + str(self.time.month), "ab", encoding = "utf-8")
+				#There we can add some \n to make it comfortable for people to read
+				line = json.dumps(dict(item), ensure_ascii=False) + "\n"
+				self.Threadfile.write(line)
+				time = datetime.datetime.strptime(item['time'][0], '%B %d, %Y, %I:%M:%S %p')
+        		item['time'] = time
+        		item['year'] = time.year
+        		item['month'] = time.month
+        		item['day'] = time.day 
+			    item['activity'] = int(item['activity'][0]) 
+        		item['posts'] = int(item['posts'][0])
+        		self.clt.save(item)
 			else:
-
-			localtime = time.localtime()
-			if time.find("at") == -1:
-				usertime = time.strptime(time, "%B %d, %Y, %I:%M:%S %p")
-			else:
-				usertime  = localtime	#aboutly equal, but lastest they date is equal, this is enough
-			'''
-			Thread_work_dir = os.path.join(SPIDER_WORK_DIR, "Thread")
-			if item["ofBoard"] != []:
-				Threadpath = reduce(os.path.join, map(lambda x: unicode.encode(x, "utf-8"), item["ofBoard"]), Thread_work_dir)
-			else:
-				Threadpath = os.path.join(Thread_work_dir, "NONEBOARD")
-			if os.path.exists(Threadpath):
-				pass
-			else:
-				os.makedirs(Threadpath)
-			eachThreadfile = os.path.join(Threadpath, item["url"].split("=")[1].__str__())
-			Threadfile = codecs.open(eachThreadfile, "ab", encoding = "utf-8")
-			#There we can add some \n to make it comfortable for people to read
-			line = json.dumps(dict(item), ensure_ascii=False) + "\n"
-			Threadfile.write(line)
-			Threadfile.close()
-
-		return item
-
+				return None
 	def spider_closed(self, spider):
-		pass
+		self.userfile.close()
+		self.Threadfile.close()
+		self.configfile.close()
+		self.client.close()
 

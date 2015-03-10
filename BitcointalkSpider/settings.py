@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 BOT_NAME = 'BitcointalkSpider'
-SPIDER_WORK_DIR = '/home/thl/project/BitcointalkSpider/Data'
+SPIDER_WORK_DIR = '/home/thl/github/BitcointalkSpider/Data'
 SPIDER_MODULES = ['BitcointalkSpider.spiders']
 NEWSPIDER_MODULE = 'BitcointalkSpider.spiders'
 # retry
@@ -26,3 +26,9 @@ CONCURRENT_REQUESTS = 300
 #     }
 
 ITEM_PIPELINES = ['BitcointalkSpider.pipelines.JsonWithEncodingPipeline']
+
+EXTENSIONS = {
+    'BitcointalkSpider.filterurl.FilterurlExtension' : 500
+}
+
+DUPEFILTER_CLASS = 'BitcointalkSpider.filterurl.SaveRequsetSeen'
