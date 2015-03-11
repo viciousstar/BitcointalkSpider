@@ -1,12 +1,11 @@
 from scrapy import signals
 from datetime import datetime
 import ConfigParser
-from BitcointalkSpider.config import  jobdir
 from scrapy.dupefilter import RFPDupeFilter
 import re
 
 class FilterurlExtension(object):
-    """Filter url that later than the last spider starting, and update config.py"""
+    """Filter url that later than the last spider starting, and update config.cfg"""
     def __init__(self):
         pass
 
@@ -21,7 +20,7 @@ class FilterurlExtension(object):
         return ext
 
     def spider_opened(self, spider):
-        self.configfile = open('BitcointalkSpider/config.py', 'r+')
+        self.configfile = open('BitcointalkSpider/config.cfg', 'r+')
         self.config = ConfigParser.ConfigParser()
         config.readfp(self.configfile)
         self.time = datetime.strptime(config.get('SPIDER', 'start_time'), '%Y-%m-%dT%H:%M:%S.%f')

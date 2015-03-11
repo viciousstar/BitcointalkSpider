@@ -8,25 +8,27 @@ import os
 from datetime import datetime
 import pymongo
 from pymongo import MongoClient
+import ConfigParser
 
 class JsonWithEncodingPipeline(object):
 #solve outfile code question by output json
 	def __init__(self):
 		try:
 			self.client = MongoClient()
-			self.db = client.bitdb
+			self.db = self.client.bitdb
+			print self.db
 		except:
 			print 'Please start Mongod.'
-			raise BaseException()
-		self.configfile = open('BitcointalkSpider/config.py', 'r+')
-        config = ConfigParser.ConfigParser()
-        config.readfp(self.configfile)
-        self.time = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S.%f')
-        try:
-        	self.db.creat_collection(str(self.time.year) + str(self.time.month))
-        except:
-        	pass
-        self.clt = self.db[str(self.time.year) + str(self.time.month)]
+		self.configfile = open('BitcointalkSpider/config.cfg', 'r+')
+		config = ConfigParser.ConfigParser()
+		config.readfp(self.configfile)
+		time = config.get('SPIDER', 'start_time')
+		self.time = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S.%f')
+		try:
+			self.db.creat_collection(str(self.time.year) + str(self.time.month))
+		except:
+			pass
+		self.clt = self.db[str(self.time.year) + str(self.time.month)]
 
 	def process_item(self, item, spider):
 		if  item.__class__ == User:
@@ -41,7 +43,7 @@ class JsonWithEncodingPipeline(object):
 					usertime  = localtime
 			except:
 				usertime = None
-			if usertime > self.time
+			if usertime > self.time:
 				userpath = os.path.join(SPIDER_WORK_DIR, "User")
 				if os.path.exists(userpath):
 					pass
@@ -50,15 +52,15 @@ class JsonWithEncodingPipeline(object):
 				self.userfile = codecs.open(str(self.time.year) + str(self.time.month), "ab", encoding = "utf-8")
 				line = json.dumps(dict(item), ensure_ascii=False) + "\n"
 				self.userfile.write(line)
-			    lastDate = datetime.strptime(item['lastDate'][0], '%B %d, %Y, %I:%M:%S %p')
-        		registerDate = datetime.strptime(item['registerDate'][0], '%B %d, %Y, %I:%M:%S %p')
-        		item['registerDate'] = registerDate
-        		item['year'] = registerDate.year
-        		item['month'] = registerDate.month
-        		item['day'] = registerDate.day 
-			    item['activity'] = int(item['activity'][0]) 
-        		item['posts'] = int(item['posts'][0])
-        		self.clt.save(item)
+				lastDate = datetime.strptime(item['lastDate'][0], '%B %d, %Y, %I:%M:%S %p')
+				registerDate = datetime.strptime(item['registerDate'][0], '%B %d, %Y, %I:%M:%S %p')
+				item['registerDate'] = registerDate
+				item['year'] = registerDate.year
+				item['month'] = registerDate.month
+				item['day'] = registerDate.day 
+				item['activity'] = int(item['activity'][0]) 
+				item['posts'] = int(item['posts'][0])
+				self.clt.save(item)
 			else:
 				return None
 		if item.__class__ == Thread:
@@ -77,13 +79,13 @@ class JsonWithEncodingPipeline(object):
 				line = json.dumps(dict(item), ensure_ascii=False) + "\n"
 				self.Threadfile.write(line)
 				time = datetime.datetime.strptime(item['time'][0], '%B %d, %Y, %I:%M:%S %p')
-        		item['time'] = time
-        		item['year'] = time.year
-        		item['month'] = time.month
-        		item['day'] = time.day 
-			    item['activity'] = int(item['activity'][0]) 
-        		item['posts'] = int(item['posts'][0])
-        		self.clt.save(item)
+				item['time'] = time
+				item['year'] = time.year
+				item['month'] = time.month
+				item['day'] = time.day 
+				item['activity'] = int(item['activity'][0]) 
+				item['posts'] = int(item['posts'][0])
+				self.clt.save(item)
 			else:
 				return None
 	def spider_closed(self, spider):

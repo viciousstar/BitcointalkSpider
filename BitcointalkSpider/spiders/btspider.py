@@ -4,6 +4,7 @@ from scrapy.contrib.linkextractors import LinkExtractor
 from BitcointalkSpider.items import User, Post, Thread
 from scrapy import log
 
+'''
 class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 
 	name = "btthreadspider"
@@ -48,7 +49,7 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 
 
 
-
+'''
 class btuserspider(scrapy.contrib.spiders.CrawlSpider):
 	name = "btuserspider"
 	allowed_domains = ["bitcointalk.org"]
@@ -57,9 +58,20 @@ class btuserspider(scrapy.contrib.spiders.CrawlSpider):
 	rules =  (
 		#rule for use
 		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?action=profile;u=\d+$", ), ),
-			callback = "extractUser")
-		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?action=mlist;sort=registered;start=\d+;desc", ), ),)
-		)			#may add renzheng
+			callback = "extractUser"),
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?action=mlist;sort=registered;start=\d+;desc")))
+		
+		)			#may add renz
+
+	def parse_start_url(self, response):
+		return scrapy.FormRequest.from_response(
+			response,
+			formdata={'username': 'john', 'password': 'secret'},
+			callback=self.after_login
+		)
+	
+	def after_login(self, response):
+		print response
 
 	def extractUser(self, response):
 		user = User()

@@ -7,7 +7,8 @@ NEWSPIDER_MODULE = 'BitcointalkSpider.spiders'
 # retry
 RETRY_ENABLED = False
 # cookie, we don't need cookies in this website
-COOKIES_ENABLED = False
+COOKIES_ENABLED = True
+COOKIES_DEBUG = True
 # this time have to reset
 DOWNLOAD_TIMEOUT = 15
 
