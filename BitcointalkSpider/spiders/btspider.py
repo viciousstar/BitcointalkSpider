@@ -64,14 +64,15 @@ class btuserspider(scrapy.contrib.spiders.CrawlSpider):
 		)			#may add renz
 
 	def parse_start_url(self, response):
+		open('login.html', 'w').write(response.body)
 		return scrapy.FormRequest.from_response(
 			response,
-			formdata={'username': 'john', 'password': 'secret'},
+			formdata={'user': 'vicious_star@163.com', 'passwrd': 'qwer1234'},
 			callback=self.after_login
 		)
 	
 	def after_login(self, response):
-		print response
+		open('after_login.html', 'w').write(response.body)
 
 	def extractUser(self, response):
 		user = User()
