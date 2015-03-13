@@ -13,14 +13,14 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 
 	rules =  (
 		#rule for board
-		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?board=\d+\.\d+$", )),
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?board=\d+\.\d+$", )),),
 		#rule for post, the "follow is true" is for  continuing extract
 		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d+$", )),
 			callback = "extractPost",
 			follow = True),
 		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?action=profile;u=\d+$", ), ),
-			callback = "extractUser"),
-		)
+			callback = "extractUser")
+		
 		)
 
 	def extractUser(self, response):

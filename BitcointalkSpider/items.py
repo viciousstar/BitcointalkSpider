@@ -15,7 +15,9 @@ class  User(scrapy.Item):
 	gender = scrapy.Field()
 	age = scrapy.Field()
 	bitcoinAddress = scrapy.Field()
-
+	year = scrapy.Field()
+	month = scrapy.Field()
+	day = scrapy.Field()
     
 
 class Thread(scrapy.Item):
@@ -27,6 +29,9 @@ class Thread(scrapy.Item):
 	url = scrapy.Field()
 	ofBoard = scrapy.Field()
 	user = scrapy.Field()
+	year = scrapy.Field()
+	month = scrapy.Field()
+	day = scrapy.Field()
 
 class Post(Thread):
 	pass
