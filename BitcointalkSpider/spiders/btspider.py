@@ -4,7 +4,7 @@ from scrapy.contrib.linkextractors import LinkExtractor
 from BitcointalkSpider.items import User, Post, Thread
 from scrapy import log
 
-'''
+
 class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 
 	name = "btthreadspider"
@@ -49,7 +49,7 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 
 
 
-'''
+
 class btuserspider(scrapy.contrib.spiders.CrawlSpider):
 	name = "btuserspider"
 	allowed_domains = ["bitcointalk.org"]
@@ -65,14 +65,31 @@ class btuserspider(scrapy.contrib.spiders.CrawlSpider):
 
 	def parse_start_url(self, response):
 		open('login.html', 'w').write(response.body)
-		return scrapy.FormRequest.from_response(
+		rsq = scrapy.FormRequest.from_response(
 			response,
-			formdata={'user': 'vicious_star@163.com', 'passwrd': 'qwer1234'},
+			formdata={'user': 'vicious_starr%%40163.com', 'passwrd': 'qwer1234'},
 			callback=self.after_login
 		)
+		print rsq.headers
+		print  '\n\n\n\n\n\n'
+		return rsq
 	
 	def after_login(self, response):
 		open('after_login.html', 'w').write(response.body)
+		rsq = scrapy.Request(url = 'https://bitcointalk.org/index.php?action=login2%3bsa=check%3bmember=379410', headers = {'Host': 'bitcointalk.org',
+                'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:36.0) Gecko/20100101 Firefox/36.0',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate',
+                #'Cookie':  'SMFCookie129=a%3A4%3A%7Bi%3A0%3Bs%3A6%3A%22379410%22%3Bi%3A1%3Bs%3A40%3A%2269f88edb7ee63f5b54f4dfdd532d4cd7a8b6bd29%22%3Bi%3A2%3Bi%3A1426168224%3Bi%3A3%3Bi%3A0%3B%7D',
+                'Connection': 'keep-alive',
+                'If-Modified-Since': 'Thu, 12 Mar 2015 08:52:12 GMT',
+                'Cache-Control': 'max-age=0'})
+		print rsq.headers
+		print  '\n\n\n\n\n\n'
+		return rsq
+	def after_login2(self, response):
+		open('after_login2.html', 'w').write(response.body)
 
 	def extractUser(self, response):
 		user = User()
