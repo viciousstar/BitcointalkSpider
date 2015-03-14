@@ -3,36 +3,36 @@ import pylab as pl
 import pymongo
 from pymongo import MongoClient
 import datetime
+import ConfigParser
 # import numpy as np    May not use
+class plotThread:
+    def __init(self, clt):
+        self.clt = clt
+        self.configfile = open(SPIDER_PRO_DIR + 'config.cfg', 'r')
+        config = ConfigParser.ConfigParser()
+        config.readfp(self.configfile)
+        self.time = config.get('SPIDER', 'start_time')
+        self.starttime = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S.%f')
+    def plot(self):
+        lasttime = datetime.datetime.today()                #should be the time of crawl finish
+    
+        datadis = {}
+        dday = (lasttime - self.starttime).days
+        for i in range(dday + 1):
+            nowtime = self.starttime + datetime.timedelta(i)
+            nowthread = self.clt.find({'time': {'$gt': nowtime, '$lt' : nowtime + datetime.timedelta(1)}})
+            count = nowthread.count()                       #the board of the thread may be distincted
+            datadis[nowtime] = count
 
-client = MongoClient()
-db = client.bitdb
-cltname = 'bitthread'
-clt = db[cltname]
-startyear, startmonth, startday = 2013, 11, 1       #need write in config.file
-starttime = datetime.datetime(startyear, startmonth, startday)
-lasttime = datetime.datetime.today()                #should be the time of crawl finish
-lastyear, lastmonth, lastdat = lasttime.year, lasttime.month, lasttime.day
-
-datadis = {}
-dday = (lasttime - starttime).days
-for i in range(dday + 1):
-    nowtime = starttime + datetime.timedelta(i)
-    nowthread = clt.find({'time': {'$gt': nowtime, '$lt' : nowtime + datetime.timedelta(1)}})
-    count = nowthread.count()                       #the board of the thread may be distincted
-    datadis[nowtime] = count
-
-
-
-sortdata = sorted(datadis.items(), key = lambda d: d[0])
-
-T = []
-N = []
-for key, value in sortdata:
-    T.append(key.isoformat())                       #xtick should be simplify
-    N.append(value)
-pl.figure(figsize = (40, 24), dpi = 80)             #the size of figure should be write in config.file
-pl.xticks(range(0, len(datadis), 60),[T[i] for i in range(0, len(datadis), 60)])        #the time gap should be config
-pl.plot(range(0, len(datadis)), N)
-pl.grid(True)                                        #num of thread should appear in yticks
-pl.savefig('/home/thl/Pictures/ThreadPerDay.pdf')    #config
+        sortdata = sorted(datadis.items(), key = lambda d: d[0])
+        T = []
+        N = []
+        for key, value in sortdata:
+            T.append(key)                       #xtick should be simplify
+            N.append(value)
+        pl.figure(figsize = (40, 24), dpi = 80)             #the size of figure should be write in config.file
+        pl.xticks(range(0, len(datadis)),[str(T[i].day) for i in range(0, len(datadis))])        #the time gap should be config
+        pl.plot(range(0, len(datadis)), N)
+        pl.grid(True)                                        #num of thread should appear in yticks
+        pl.savefig('/home/thl/Pictures/' + str(self.time.year) + str(self.time.month) + 'ThreadPerDay.pdf')    #config
+        self.configfile.close()
