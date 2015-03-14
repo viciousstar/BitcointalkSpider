@@ -2,42 +2,41 @@
 
 import json
 import codecs
-from BitcointalkSpider.items import User, Post, Thread
-from BitcointalkSpider.settings import SPIDER_WORK_DIR
+from .items import User, Post, Thread
+from .settings import SPIDER_WORK_DIR, SPIDER_PRO_DIR
+from .Mongodb.plotAllThread import plotThread
+from .Mongodb.plotAllUser import plotUser
 import os
 from datetime import datetime
 import pymongo
+from scrapy import log
 from pymongo import MongoClient
 import ConfigParser
 
 class JsonWithEncodingPipeline(object):
 #solve outfile code question by output json
 	def __init__(self):
+		self.nowtime = datetime.today()
 		try:
-			self.file = open('stat.info', 'a+')
-			self.count = 0
 			self.client = MongoClient()
 			self.db = self.client.bitdb
-			print self.db
 		except:
-			print 'Please start Mongod.'
-			return
-		self.configfile = open('BitcointalkSpider/config.cfg', 'r+')
-		config = ConfigParser.ConfigParser()
+			log.msg(self.nowtime.isoformat() + 'Start Mongod Fail')
+			raise Exception('Start Mongod Fail')
+		self.configfile = open(SPIDER_PRO_DIR + 'config.cfg', 'r')
+		config = ConfigParser.ConfigParser() 
 		config.readfp(self.configfile)
 		time = config.get('SPIDER', 'start_time')
 		self.time = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S.%f')
 		try:
-			self.db.create_collection(str(self.time.year) + str(self.time.month))
+			self.thclt = self.db.create_collection('thread' + str(self.time.year) + str(self.time.month))
+			self.userclt = self.db.create_collection('user' + str(self.time.year) + str(self.time.month))
 		except:
-			print 'fail to creat collection'
-		self.clt = self.db[str(self.time.year) + str(self.time.month)]
-
+			log.msg(self.nowtime.isoformat() + 'Fail to creat collection')
 	def process_item(self, item, spider):
 		localtime = datetime.today()
 		if  item.__class__ == User:
-		#time format 
-		#time.strptime(str, "%B %d, %Y, %H:%M:%S %p")
+			#distinguish 'Today at xxxxxx' time format
 			rtimelen = len(item["registerDate"])
 			try:
 				if rtimelen == 1:
@@ -55,8 +54,12 @@ class JsonWithEncodingPipeline(object):
 				self.userfile = codecs.open(str(self.time.year) + str(self.time.month), "ab", encoding = "utf-8")
 				line = json.dumps(dict(item), ensure_ascii=False) + "\n"
 				self.userfile.write(line)
+				ltimelen = len(item["lastDate"])
 				try:
-					lastDate = datetime.strptime(item['lastDate'][0], '%B %d, %Y, %I:%M:%S %p')
+					if ltimelen == 1:
+						lastDate = datetime.strptime(item["lastDate"][0].__str__(), "%B %d, %Y, %I:%M:%S %p")
+					if ltimelen == 2:
+						lastDate  = localtime 
 				except:
 					lastDate = datetime.today()
 				registerDate = datetime.strptime(item['registerDate'][0], '%B %d, %Y, %I:%M:%S %p')
@@ -66,9 +69,7 @@ class JsonWithEncodingPipeline(object):
 				item['day'] = registerDate.day 
 				item['activity'] = int(item['activity'][0]) 
 				item['posts'] = int(item['posts'][0])
-				self.clt.save(item)
-				self.count += 1
-				print 'save user successfully \n\n\n\n\n\n'
+				self.userclt.save(dict(item))
 			else:
 				return None
 	
@@ -96,17 +97,14 @@ class JsonWithEncodingPipeline(object):
 				item['year'] = time.year
 				item['month'] = time.month
 				item['day'] = time.day 
-				item['activity'] = int(item['activity'][0]) 
-				item['posts'] = int(item['posts'][0])
-				self.clt.save(item)
-				print 'save thread successfully \n\n\n\n\n\n'
-				self.count += 1
+				self.thclt.save(dict(item))
 			else:
 				return None
-	def spider_closed(self, spider):
-		self.file.write(self.count)
+	
+	def close_spider(self, spider):
+		plotThread(self.thclt).plot()
+		plotUser(self.userclt).plot()
 		self.userfile.close()
 		self.Threadfile.close()
 		self.configfile.close()
 		self.client.close()
-		self.file.close()

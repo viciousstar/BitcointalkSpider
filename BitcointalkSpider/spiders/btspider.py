@@ -1,7 +1,7 @@
 import scrapy
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
-from BitcointalkSpider.items import User, Post, Thread
+from ..items import User, Post, Thread
 from scrapy import log
 
 
@@ -124,7 +124,7 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 
 
 
-
+#user authentication
 
 # class btuserspider(scrapy.contrib.spiders.CrawlSpider):
 # 	name = "btuserspider"
