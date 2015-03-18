@@ -4,7 +4,7 @@ BitcointalkSpider
 
 - Using scrapy to crawl some dates from www.bitcointalk.org and www.bitsharestalk.org for monitoring the activities of the forum.
 - And store the data which crawl from the forum.
-
+- the lastest repo is GiveAuthentication where we add date processing and date visual display
 
 
 ##You need before run it
