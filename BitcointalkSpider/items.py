@@ -14,8 +14,8 @@ class  User(scrapy.Item):
 	posts = scrapy.Field()
 	activity = scrapy.Field()
 	position = scrapy.Field()
-	registerData= scrapy.Field()
-	lastData = scrapy.Field()
+	registerDate= scrapy.Field()
+	lastDate = scrapy.Field()
 	Email = scrapy.Field()
 	gender = scrapy.Field()
 	age = scrapy.Field()
@@ -23,7 +23,7 @@ class  User(scrapy.Item):
 
     
 
-class Post(scrapy.Item):
+class Thread(scrapy.Item):
 	# store posts' information
 	topic = scrapy.Field()
 	time = scrapy.Field()
@@ -32,3 +32,6 @@ class Post(scrapy.Item):
 	url = scrapy.Field()
 	ofBoard = scrapy.Field()
 	user = scrapy.Field()
+
+class Post(Thread):
+	pass
