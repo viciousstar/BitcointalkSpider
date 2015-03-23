@@ -2,17 +2,18 @@
 import os
 
 BOT_NAME = 'BitcointalkSpider'
-#the dir of data store
+#some info file use : stat.info
 SPIDER_PRO_DIR  = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
 
-SPIDER_WORK_DIR = os.path.join(SPIDER_PRO_DIR, 'Data')
-#some info file use : stat.info
+#the dir of data store
+SPIDER_DATA_DIR = os.path.join(SPIDER_PRO_DIR, 'Data')
 
+JOBDIR = os.path.join(SPIDER_PRO_DIR, 'requestData')
 SPIDER_MODULES = ['BitcointalkSpider.spiders']
 NEWSPIDER_MODULE = 'BitcointalkSpider.spiders'
 RETRY_ENABLED = False
-COOKIES_ENABLED = True
-COOKIES_DEBUG = True
+COOKIES_ENABLED = False
+COOKIES_DEBUG = False
 DOWNLOAD_TIMEOUT = 15
 DOWNLOAD_DELAY = 1
 LOG_LEVEL = "INFO"

@@ -3,7 +3,7 @@
 import json
 import codecs
 from .items import User, Post, Thread
-from .settings import SPIDER_WORK_DIR, SPIDER_PRO_DIR
+from .settings import SPIDER_DATA_DIR, SPIDER_PRO_DIR
 from .Mongodb.plotAllThread import plotThread
 from .Mongodb.plotAllUser import plotUser
 import os
@@ -46,7 +46,7 @@ class JsonWithEncodingPipeline(object):
 			except:
 				usertime = None
 			if usertime and usertime > self.time:
-				userpath = os.path.join(SPIDER_WORK_DIR, "User")
+				userpath = os.path.join(SPIDER_DATA_DIR, "User")
 				if os.path.exists(userpath):
 					pass
 				else:
@@ -83,7 +83,7 @@ class JsonWithEncodingPipeline(object):
 			except:
 				usertime = None
 			if usertime and usertime > self.time:
-				Thread_work_dir = os.path.join(SPIDER_WORK_DIR, "Thread")
+				Thread_work_dir = os.path.join(SPIDER_DATA_DIR, "Thread")
 				if os.path.exists(Thread_work_dir):
 					pass
 				else:
