@@ -50,7 +50,7 @@ class FilterurlExtension(object):
         except:
             log.msg(self.time.isoformat() + 'Write config fail!')
 
-class SaveRequsetSeen(RFPDupeFilter):
+class SaveRequestSeen(RFPDupeFilter):
     def request_seen(self, request):
         fp = self.request_fingerprint(request)
         if fp in self.fingerprints:
