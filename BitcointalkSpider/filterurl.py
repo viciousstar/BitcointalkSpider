@@ -20,7 +20,7 @@ class FilterurlExtension(object):
         return ext
 
     def spider_opened(self, spider):
-        self.configfile = open(SPIDER_PRO_DIR + 'config.cfg', 'r+')
+        self.configfile = open(os.path.join(SPIDER_PRO_DIR, 'config.cfg'), 'r+')
         self.config = ConfigParser.ConfigParser()
         self.config.readfp(self.configfile)
         self.time = datetime.strptime(self.config.get('SPIDER', 'start_time'), '%Y-%m-%dT%H:%M:%S.%f')
@@ -44,7 +44,7 @@ class FilterurlExtension(object):
     def spider_closed(self, spider):
         try:
             self.config.set('SPIDER', 'finish_time', datetime.today().isoformat())
-            self.config.write(open(SPIDER_PRO_DIR + 'config.cfg', 'w'))
+            self.config.write(open(os.path.join(SPIDER_PRO_DIR, 'config.cfg'), 'w'))
             self.configfile.close()
             log.msg(self.time.isoformat() + 'Write config finish')
         except:

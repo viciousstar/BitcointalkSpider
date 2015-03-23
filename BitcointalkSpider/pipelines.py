@@ -23,7 +23,7 @@ class JsonWithEncodingPipeline(object):
 		except:
 			log.msg(self.nowtime.isoformat() + 'Start Mongod Fail')
 			raise Exception('Start Mongod Fail')
-		self.configfile = open(SPIDER_PRO_DIR + 'config.cfg', 'r')
+		self.configfile = open(os.path.join(SPIDER_PRO_DIR, 'config.cfg'), 'r')
 		config = ConfigParser.ConfigParser() 
 		config.readfp(self.configfile)
 		time = config.get('SPIDER', 'start_time')

@@ -8,7 +8,7 @@ import ConfigParser
 class plotThread:
     def __init(self, clt):
         self.clt = clt
-        self.configfile = open(SPIDER_PRO_DIR + 'config.cfg', 'r')
+        self.configfile = open(os.path.join(SPIDER_PRO_DIR, 'config.cfg'), 'r')
         config = ConfigParser.ConfigParser()
         config.readfp(self.configfile)
         self.time = config.get('SPIDER', 'start_time')
