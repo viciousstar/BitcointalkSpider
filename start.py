@@ -16,7 +16,6 @@ def main():
 
 
 if __name__ == '__main__':
-    f = open('scrapy.log', 'a+')
     while True:
         main()
         time.sleep(86400)   #seconds of a day

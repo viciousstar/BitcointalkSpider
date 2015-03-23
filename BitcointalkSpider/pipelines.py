@@ -51,7 +51,7 @@ class JsonWithEncodingPipeline(object):
 					pass
 				else:
 					os.makedirs(userpath)
-				self.userfile = codecs.open(str(self.time.year) + str(self.time.month), "ab", encoding = "utf-8")
+				self.userfile = codecs.open(os.path.join(userpath,str(self.time.year) + str(self.time.month)), "ab", encoding = "utf-8")
 				line = json.dumps(dict(item), ensure_ascii=False) + "\n"
 				self.userfile.write(line)
 				ltimelen = len(item["lastDate"])
@@ -88,7 +88,7 @@ class JsonWithEncodingPipeline(object):
 					pass
 				else:
 					os.makedirs(Thread_work_dir)
-				self.Threadfile = codecs.open(Thread_work_dir + str(self.time.year) + str(self.time.month), "ab", encoding = "utf-8")
+				self.Threadfile = codecs.open(os.path.join(Thread_work_dir,str(self.time.year) + str(self.time.month)), "ab", encoding = "utf-8")
 				#There we can add some \n to make it comfortable for people to read
 				line = json.dumps(dict(item), ensure_ascii=False) + "\n"
 				self.Threadfile.write(line)
