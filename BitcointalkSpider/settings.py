@@ -7,11 +7,13 @@ SPIDER_PRO_DIR  = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pat
 
 #the dir of data store
 SPIDER_DATA_DIR = os.path.join(SPIDER_PRO_DIR, 'Data')
-
+SPIDER_PLOT_DIR = os.path.join(SPIDER_PRO_DIR, 'Plot')
+SPIDER_RETRYURL_DIR = os.path.join(SPIDER_PRO_DIR, 'RetryUrl') 
 JOBDIR = os.path.join(SPIDER_PRO_DIR, 'requestData')
 SPIDER_MODULES = ['BitcointalkSpider.spiders']
 NEWSPIDER_MODULE = 'BitcointalkSpider.spiders'
-RETRY_ENABLED = False
+RETRY_ENABLED = True
+RETRY_MAIN_TIMES = 10
 COOKIES_ENABLED = False
 COOKIES_DEBUG = False
 DOWNLOAD_TIMEOUT = 15
@@ -21,9 +23,14 @@ LOG_FILE = os.path.join(SPIDER_PRO_DIR, "scrapy.log")
 CONCURRENT_REQUESTS_PER_DOMAIN = 300
 CONCURRENT_REQUESTS = 300
 #output item as json
-ITEM_PIPELINES = ['BitcointalkSpider.pipelines.JsonWithEncodingPipeline']
+ITEM_PIPELINES = {'BitcointalkSpider.pipelines.JsonWithEncodingPipeline' : 800}
 #recode time info of spider and filter url according to time
 EXTENSIONS = {
     'BitcointalkSpider.filterurl.FilterurlExtension' : 500
 }
 DUPEFILTER_CLASS = 'BitcointalkSpider.filterurl.SaveRequestSeen'
+
+DOWNLOADER_MIDDLEWARES = {
+    'scrapy.contrib.downloadermiddleware.retry.RetryMiddleware': None,
+    'BitcointalkSpider.retryMiddleware.MyRetryMiddleware': 500
+}

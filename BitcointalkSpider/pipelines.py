@@ -62,7 +62,7 @@ class JsonWithEncodingPipeline(object):
 						lastDate  = localtime 
 				except:
 					lastDate = datetime.today()
-				registerDate = datetime.strptime(item['registerDate'][0], '%B %d, %Y, %I:%M:%S %p')
+				registerDate = lastDate
 				item['registerDate'] = registerDate
 				item['year'] = registerDate.year
 				item['month'] = registerDate.month
@@ -92,7 +92,7 @@ class JsonWithEncodingPipeline(object):
 				#There we can add some \n to make it comfortable for people to read
 				line = json.dumps(dict(item), ensure_ascii=False) + "\n"
 				self.Threadfile.write(line)
-				time = datetime.strptime(item['time'][0], '%B %d, %Y, %I:%M:%S %p')
+				time = usertime
 				item['time'] = time
 				item['year'] = time.year
 				item['month'] = time.month
