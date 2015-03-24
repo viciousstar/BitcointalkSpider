@@ -3,6 +3,7 @@ import pylab as pl
 import pymongo
 from pymongo import MongoClient
 import datetime
+import os
 import ConfigParser
 from ..settings import SPIDER_PLOT_DIR
 
