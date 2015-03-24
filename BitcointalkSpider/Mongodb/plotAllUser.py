@@ -2,8 +2,9 @@ import pylab as pl
 import pymongo
 import datetime
 import numpy as np
+import os
 from pymongo import MongoClient
-
+from ..settings import SPIDER_PLOT_DIR
 class plotUser(object):
     """docstring for plotUser"""
     def __init(self, clt):
@@ -34,6 +35,6 @@ class plotUser(object):
         pl.xticks(range(0, len(datadis)),[str(T[i].day) for i in range(0, len(datadis))])
         pl.plot(range(0, len(datadis)), N)
         pl.grid(True)
-        pl.savefig('/home/thl/Pictures/' + str(self.time.year) + str(self.time.month) + 'userPerDay.tif')
+        pl.savefig(os.path.join(SPIDER_PLOT_DIR ,''.join(str(self.time.year) + str(self.time.month) + 'userPerDay.tif')))
         self.configfile.close()
 

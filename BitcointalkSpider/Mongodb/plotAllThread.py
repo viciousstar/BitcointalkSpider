@@ -4,6 +4,8 @@ import pymongo
 from pymongo import MongoClient
 import datetime
 import ConfigParser
+from ..settings import SPIDER_PLOT_DIR
+
 # import numpy as np    May not use
 class plotThread:
     def __init(self, clt):
@@ -34,5 +36,5 @@ class plotThread:
         pl.xticks(range(0, len(datadis)),[str(T[i].day) for i in range(0, len(datadis))])        #the time gap should be config
         pl.plot(range(0, len(datadis)), N)
         pl.grid(True)                                        #num of thread should appear in yticks
-        pl.savefig('/home/thl/Pictures/' + str(self.time.year) + str(self.time.month) + 'ThreadPerDay.pdf')    #config
+        pl.savefig(os.path.join(SPIDER_PLOT_DIR ,''.join(str(self.time.year) + str(self.time.month) + 'threadPerDay.tif')))
         self.configfile.close()
