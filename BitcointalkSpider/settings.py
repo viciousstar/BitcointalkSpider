@@ -22,6 +22,10 @@ LOG_LEVEL = "INFO"
 LOG_FILE = os.path.join(SPIDER_PRO_DIR, "scrapy.log")
 CONCURRENT_REQUESTS_PER_DOMAIN = 300
 CONCURRENT_REQUESTS = 300
+#depth priority
+DEPTH_PRIORITY = 1
+SCHEDULER_DISK_QUEUE = 'scrapy.squeue.PickleFifoDiskQueue'
+SCHEDULER_MEMORY_QUEUE = 'scrapy.squeue.FifoMemoryQueue'
 #output item as json
 ITEM_PIPELINES = {'BitcointalkSpider.pipelines.JsonWithEncodingPipeline' : 800}
 #recode time info of spider and filter url according to time

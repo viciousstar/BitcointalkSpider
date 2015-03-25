@@ -1,15 +1,18 @@
+from datetime import datetime
+import ConfigParser
 import scrapy
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
-from ..items import User, Post, Thread
 from scrapy import log
-
+from scrapy.http import FormRequest
+from ..items import User, Post, Thread
 
 class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 
 	name = "btthreadspider"
 	allowed_domains = ["bitcointalk.org"]
 	start_urls = ["https://bitcointalk.org/index.php"]
+	denyulr = []
 
 	rules =  (
 		#rule for board
@@ -17,7 +20,7 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 		#rule for post, the "follow is true" is for  continuing extract
 		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d+$", )),
 			callback = "extractPost",
-			follow = True),
+			follow = False),
 		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?action=profile;u=\d+$", ), ),
 			callback = "extractUser")
 		
@@ -122,8 +125,30 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 			post["content"].append(dict(smallpost))
 		return post
 
+	def parse_start_url(self, response):
+		for mainboard in response.xpath('//*[@id="bodyarea"]/div'):
+			for board in board.xpath('./table/tr'):
+				urls = board.xpath('(./td)[2]//a').extract()
+				try:
+					time = board.xpath('(./td)[4]//text()').extract()[-1].strip()
+					time = datetime.strptime(time.strip(), 'at %I:%M:%S %p')) \
+						if time.find('at') else datetime.strptime(time.strip(), "%B %d, %Y, %I:%M:%S %p")
+				except:
+					time = None
+				if self.isNewTime(time):
+					for url in urls:
+						yield FormRequest(url)
+				else:
+					for url in urls:
+						self.ruleAddDeny( ,url)
 
+	def isNewTime(self, time):
+		return time >= self.crawler.stats.get_value('last_start_time')
 
+	def self.ruleAddDeny(self,front, url):
+		n =  url.split('=')[-1].split('.')[0]
+		for rule in self.rules:
+			rule.link_extractor.allow_res.append(re.compile(''.join([front, n, '\.\d+$'])))
 #user authentication
 
 # class btuserspider(scrapy.contrib.spiders.CrawlSpider):

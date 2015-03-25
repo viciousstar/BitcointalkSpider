@@ -1,6 +1,7 @@
 import re
 from scrapy.contrib.downloadermiddleware.retry import RetryMiddleware
 from scrapy import log
+from scrapy import signals
 class MyRetryMiddleware(RetryMiddleware):
     """docstring for MyRetryMiddleware"""
     def __init__(self, settings):
@@ -20,8 +21,8 @@ class MyRetryMiddleware(RetryMiddleware):
             log.msg("Can not open retryUrl file in %s" %self.path, level = log.ERROR)
             self.file = None
     def spider_closed(self):       
-        self.file.close() if self.file
-        
+        self.file.close() if self.file else None
+
     def _retry(self, request, reason, spider):
         retries = request.meta.get('retry_times', 0) + 1
         url = request.url

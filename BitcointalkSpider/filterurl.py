@@ -3,27 +3,34 @@ from scrapy import log
 from datetime import datetime
 import ConfigParser
 from scrapy.dupefilter import RFPDupeFilter
+
 import re
 import os
 from .settings import SPIDER_PRO_DIR
 
 class FilterurlExtension(object):
     """Filter url that later than the last spider starting, and update config.cfg"""
-    def __init__(self):
+    def __init__(self, stats):
         self.time = datetime.today()
-
+        self.stats = stats
     @classmethod
     def from_crawler(cls, crawler):
-        ext = cls()
+        ext = cls(crawler.stats)
+        # ext.engine = crawler.engine 
         crawler.signals.connect(ext.spider_opened, signal = signals.spider_opened)
         crawler.signals.connect(ext.spider_closed, signal = signals.spider_closed)
+        # crawler.signals.connect(ext.spider_received, signal = signals.response_received)
         return ext
 
     def spider_opened(self, spider):
-        self.configfile = open(os.path.join(SPIDER_PRO_DIR, 'config.cfg'), 'r+')
-        self.config = ConfigParser.ConfigParser()
-        self.config.readfp(self.configfile)
-        self.time = datetime.strptime(self.config.get('SPIDER', 'start_time'), '%Y-%m-%dT%H:%M:%S.%f')
+        try:
+            self.configfile = open(os.path.join(SPIDER_PRO_DIR, 'config.cfg'), 'r+')
+            self.config = ConfigParser.ConfigParser()
+            self.config.readfp(self.configfile)
+            self.time = datetime.strptime(self.config.get('SPIDER', 'start_time'), '%Y-%m-%dT%H:%M:%S.%f')
+        except:
+            self.time = datetime.today()
+        self.stats.set_value('last_start_time', self.time)
         self.config.set('SPIDER', 'start_time', datetime.today().isoformat())
         log.msg(self.time.isoformat() + "Read config finish.") 
     
@@ -56,7 +63,7 @@ class SaveRequestSeen(RFPDupeFilter):
         if fp in self.fingerprints:
             return True
         self.fingerprints.add(fp)       
-        if not re.match('board=\d+' ,request.url):       
+        if not re.match('board=\d+$|topic=\d+\.0$' ,request.url):       
             if self.file:
                 self.file.write(fp + os.linesep)
         else:
