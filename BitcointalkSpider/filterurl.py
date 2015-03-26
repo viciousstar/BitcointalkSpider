@@ -12,16 +12,17 @@ class FilterurlExtension(object):
     def __init__(self, stats):
         self.time = datetime.today()
         self.stats = stats
+        self.spider_opened()
     @classmethod
     def from_crawler(cls, crawler):
         ext = cls(crawler.stats)
         # ext.engine = crawler.engine 
-        crawler.signals.connect(ext.spider_opened, signal = signals.spider_opened)
+        # crawler.signals.connect(ext.spider_opened, signal = signals.engine_started)
         crawler.signals.connect(ext.spider_closed, signal = signals.spider_closed)
         # crawler.signals.connect(ext.spider_received, signal = signals.response_received)
         return ext
 
-    def spider_opened(self, spider):
+    def spider_opened(self):
         try:
             self.configfile = open(os.path.join(SPIDER_PRO_DIR, 'config.cfg'), 'r+')
             self.config = ConfigParser.ConfigParser()

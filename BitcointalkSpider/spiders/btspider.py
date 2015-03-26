@@ -13,7 +13,6 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 	name = "btthreadspider"
 	allowed_domains = ["bitcointalk.org"]
 	start_urls = ["https://bitcointalk.org/index.php"]
-	denyulr = []
 
 	rules =  (
 		#rule for board
@@ -21,8 +20,8 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 			callback = 'filterPost'),
 		#rule for post, the "follow is true" is for  continuing extract
 		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d+$", )),
-			callback = "extractPost",
-			follow = False),
+			callback = "extractPost",),
+
 		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?action=profile;u=\d+$", ), ),
 			callback = "extractUser")
 		
@@ -135,10 +134,16 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 
 	def parse_start_url(self, response):
 		for mainboard in response.xpath('//*[@id="bodyarea"]/div'):
-			for board in board.xpath('./table/tr'):
+			for board in mainboard.xpath('./table/tr'):
 				url = board.xpath('(./td)[2]//a').extract()[0]
-				time = filter(lambda x : len(x.strip()), board.xpath('(./td)[4]//text()').extract())[-1]
-				time = self.timeFormat(time)			
+				time = filter(lambda x : len(x.strip()), board.xpath('(./td)[4]//text()').extract())
+				if time == []:
+					continue
+				print time , '\n\n\n'
+				time = self.timeFormat(time[-1].strip())
+				print time , '\n\n\n'
+
+				print 			
 				if self.isNewTime(time):
 					yield FormRequest(url)
 				else:
@@ -150,14 +155,16 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 	def ruleAddDeny(self, front, url):
 		n =  url.split('=')[-1].split('.')[0]
 		for rule in self.rules:
-			rule.link_extractor.allow_res.append(re.compile(''.join([front, n, '\.\d+$'])))
+			rule.link_extractor.deny_res.append(re.compile(''.join([front, n, '\.\d+$'])))
 
 	def filterPost(self, response):
 		for subboard in response.xpath('//*[@id="bodyarea"]/div[2]/table/tr'):
 			url = board.xpath('(./td)[2]//a').extract()[0]
 			if url:		#some board have some subboard
-				time = filter(lambda x : len(x.strip()), board.xpath('(./td)[4]//text()').extract())[-1]
-				time = self.timeFormat(time)
+				time = filter(lambda x : len(x.strip()), board.xpath('(./td)[4]//text()').extract())
+				if not time:
+					continue
+				time = self.timeFormat(time[-1].strip())
 				if self.isNewTime(time):
 					yield FormRequest(url)
 				else:
@@ -184,7 +191,7 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 
 	def timeFormat(self, time):
 		try:
-			if time.find('at'):
+			if time.find('at') >= 0:
 				today = datetime.today()
 				time = datetime.strptime(time.strip(), 'at %I:%M:%S %p')
 				time.year = today.year

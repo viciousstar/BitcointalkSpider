@@ -18,8 +18,8 @@ COOKIES_ENABLED = False
 COOKIES_DEBUG = False
 DOWNLOAD_TIMEOUT = 15
 DOWNLOAD_DELAY = 1
-LOG_LEVEL = "INFO"
-LOG_FILE = os.path.join(SPIDER_PRO_DIR, "scrapy.log")
+LOG_LEVEL = "DEBUG"
+#LOG_FILE = os.path.join(SPIDER_PRO_DIR, "scrapy.log")
 CONCURRENT_REQUESTS_PER_DOMAIN = 300
 CONCURRENT_REQUESTS = 300
 #depth priority
@@ -32,7 +32,7 @@ ITEM_PIPELINES = {'BitcointalkSpider.pipelines.JsonWithEncodingPipeline' : 800}
 EXTENSIONS = {
     'BitcointalkSpider.filterurl.FilterurlExtension' : 1
 }
-DUPEFILTER_CLASS = 'BitcointalkSpider.filterurl.SaveRequestSeen'
+#DUPEFILTER_CLASS = 'BitcointalkSpider.filterurl.SaveRequestSeen'
 
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.contrib.downloadermiddleware.retry.RetryMiddleware': None,
