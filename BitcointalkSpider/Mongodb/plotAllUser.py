@@ -35,6 +35,6 @@ class plotUser(object):
         pl.xticks(range(0, len(datadis)),[str(T[i].day) for i in range(0, len(datadis))])
         pl.plot(range(0, len(datadis)), N)
         pl.grid(True)
-        pl.savefig(os.path.join(SPIDER_PLOT_DIR ,''.join(str(self.time.year) + str(self.time.month) + 'userPerDay.tif')))
+        pl.savefig(os.path.join(SPIDER_PLOT_DIR ,''.join([str(self.time.year), str(self.time.month), 'userPerDay.tif'])))
         self.configfile.close()
 

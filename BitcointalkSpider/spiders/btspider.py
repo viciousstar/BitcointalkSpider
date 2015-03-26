@@ -1,5 +1,6 @@
 from datetime import datetime
 import ConfigParser
+import re
 import scrapy
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
@@ -16,7 +17,8 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 
 	rules =  (
 		#rule for board
-		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?board=\d+\.\d+$", )),),
+		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?board=\d+\.\d+$", )),
+			callback = 'filterPost'),
 		#rule for post, the "follow is true" is for  continuing extract
 		Rule(LinkExtractor(allow = ("https://bitcointalk\.org/index\.php\?topic=\d+\.\d+$", )),
 			callback = "extractPost",
@@ -123,32 +125,79 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 			smallpost["time"] =  everyPost.xpath("(.//div[@class = 'smalltext'])[2]/text()").extract()
 			smallpost["content"] = everyPost.xpath(".//div[@class = 'post']/text()").extract()
 			post["content"].append(dict(smallpost))
-		return post
+		yield post
+
+		urls = response.xpath('//a/@href').extract()
+		for url in urls:
+				pattren = re.compile("topic=\d+\.\d+$|action=profile;u=\d+$")
+				if pattren.match(url):
+					yield FormRequest(url)
 
 	def parse_start_url(self, response):
 		for mainboard in response.xpath('//*[@id="bodyarea"]/div'):
 			for board in board.xpath('./table/tr'):
-				urls = board.xpath('(./td)[2]//a').extract()
-				try:
-					time = board.xpath('(./td)[4]//text()').extract()[-1].strip()
-					time = datetime.strptime(time.strip(), 'at %I:%M:%S %p')) \
-						if time.find('at') else datetime.strptime(time.strip(), "%B %d, %Y, %I:%M:%S %p")
-				except:
-					time = None
+				url = board.xpath('(./td)[2]//a').extract()[0]
+				time = filter(lambda x : len(x.strip()), board.xpath('(./td)[4]//text()').extract())[-1]
+				time = self.timeFormat(time)			
 				if self.isNewTime(time):
-					for url in urls:
-						yield FormRequest(url)
+					yield FormRequest(url)
 				else:
-					for url in urls:
-						self.ruleAddDeny( ,url)
+					self.ruleAddDeny("https://bitcointalk\.org/index\.php\?board=" ,url)
 
 	def isNewTime(self, time):
 		return time >= self.crawler.stats.get_value('last_start_time')
 
-	def self.ruleAddDeny(self,front, url):
+	def ruleAddDeny(self, front, url):
 		n =  url.split('=')[-1].split('.')[0]
 		for rule in self.rules:
 			rule.link_extractor.allow_res.append(re.compile(''.join([front, n, '\.\d+$'])))
+
+	def filterPost(self, response):
+		for subboard in response.xpath('//*[@id="bodyarea"]/div[2]/table/tr'):
+			url = board.xpath('(./td)[2]//a').extract()[0]
+			if url:		#some board have some subboard
+				time = filter(lambda x : len(x.strip()), board.xpath('(./td)[4]//text()').extract())[-1]
+				time = self.timeFormat(time)
+				if self.isNewTime(time):
+					yield FormRequest(url)
+				else:
+					self.ruleAddDeny("https://bitcointalk\.org/index\.php\?board=" ,url)
+
+		timelist = response.xpath('//*[@id="bodyarea"]/div[3]/table/tr[2]/td[7]/span//text()').extract()
+		if len(timelist) == 6:
+			time = self.timeFormat(timelist[2].strip())
+		else:
+			time = self.timeFormat(timelist[0].strip())
+		if self.isNewTime(time):
+			url = response.url
+			n =  int(url.split('=')[-1].split('.')[1])
+			n = str(n + 40)
+			url = ''.join([url.rsplit('.', 1)[0], '.', n])
+			yield FormRequest(url)	
+		else:
+			self.ruleAddDeny("https://bitcointalk\.org/index\.php\?board=", url)
+			urls = response.xpath('//a/@href').extract()
+			for url in urls:
+				pattren = re.compile("topic=\d+\.0$")
+				if pattren.match(url):
+					yield FormRequest(url)
+
+	def timeFormat(self, time):
+		try:
+			if time.find('at'):
+				today = datetime.today()
+				time = datetime.strptime(time.strip(), 'at %I:%M:%S %p')
+				time.year = today.year
+				time.month = today.month
+				time.day = today.day
+			else:
+				time = datetime.strptime(time.strip(), "%B %d, %Y, %I:%M:%S %p")
+			return time
+		except:
+			return None
+
+
+
 #user authentication
 
 # class btuserspider(scrapy.contrib.spiders.CrawlSpider):
