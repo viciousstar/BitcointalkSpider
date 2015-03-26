@@ -1,13 +1,12 @@
-from scrapy import signals
-from scrapy import log
 from datetime import datetime
 import ConfigParser
-from scrapy.dupefilter import RFPDupeFilter
-
 import re
 import os
+import json
+from scrapy.dupefilter import RFPDupeFilter
+from scrapy import signals
+from scrapy import log
 from .settings import SPIDER_PRO_DIR
-
 class FilterurlExtension(object):
     """Filter url that later than the last spider starting, and update config.cfg"""
     def __init__(self, stats):
@@ -54,6 +53,9 @@ class FilterurlExtension(object):
             self.config.write(open(os.path.join(SPIDER_PRO_DIR, 'config.cfg'), 'w'))
             self.configfile.close()
             log.msg(self.time.isoformat() + 'Write config finish')
+            statinfo = json.dumps(dict(self.stats))
+            f = open(os.path.join(SPIDER_PRO_DIR, 'stat.info'), 'a+').write(statinfo)
+            f.close()
         except:
             log.msg(self.time.isoformat() + 'Write config fail!')
 

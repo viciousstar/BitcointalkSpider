@@ -30,7 +30,7 @@ SCHEDULER_MEMORY_QUEUE = 'scrapy.squeue.FifoMemoryQueue'
 ITEM_PIPELINES = {'BitcointalkSpider.pipelines.JsonWithEncodingPipeline' : 800}
 #recode time info of spider and filter url according to time
 EXTENSIONS = {
-    'BitcointalkSpider.filterurl.FilterurlExtension' : 500
+    'BitcointalkSpider.filterurl.FilterurlExtension' : 1
 }
 DUPEFILTER_CLASS = 'BitcointalkSpider.filterurl.SaveRequestSeen'
 
