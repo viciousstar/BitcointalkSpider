@@ -33,7 +33,7 @@ class JsonWithEncodingPipeline(object):
 	@classmethod
 	def from_crawler(cls, crawler):
 		jep = cls()
-		jep.time = crawler.stats.get('last_start_time')
+		jep.time = crawler.stats.get_value('last_start_time')
 		return jep
 
 	def process_item(self, item, spider):

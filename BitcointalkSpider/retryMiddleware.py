@@ -8,21 +8,25 @@ class MyRetryMiddleware(RetryMiddleware):
         super(MyRetryMiddleware, self).__init__(settings)
         self.max_retry_main_times = settings.getint('RETRY_MAIN_TIMES')
         self.path = settings.get('SPIDER_RETRYURL_DIR')
+    
     @classmethod
     def from_crawler(cls, crawler):
         rt = cls(crawler.settings)
         crawler.signals.connect(rt.spider_opened, signal = signals.spider_opened)
         crawler.signals.connect(rt.spider_closed, signal = signals.spider_closed)
         return rt
+    
     def spider_opened(self):
         try:
             self.file = open(self.path, 'a+')
         except:
             log.msg("Can not open retryUrl file in %s" %self.path, level = log.ERROR)
             self.file = None
+    
     def spider_closed(self):       
         self.file.close() if self.file else None
 
+    
     def _retry(self, request, reason, spider):
         retries = request.meta.get('retry_times', 0) + 1
         url = request.url
