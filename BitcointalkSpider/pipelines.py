@@ -85,8 +85,11 @@ class JsonWithEncodingPipeline(object):
                 self.thclt.save(dict(item))
     
     def close_spider(self, spider):
-        plotThread(self.thclt).plot()
-        plotUser(self.userclt).plot()
+        print self.thclt
+        print self.userclt
+        print '\n\n\n\n'
+        plotThread(self.thclt, self.time).plot()
+        plotUser(self.userclt, self.time).plot()
         self.userfile.close()
         self.threadfile.close()
         self.client.close()

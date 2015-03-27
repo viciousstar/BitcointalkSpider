@@ -7,13 +7,9 @@ from pymongo import MongoClient
 from ..settings import SPIDER_PLOT_DIR
 class plotUser(object):
     """docstring for plotUser"""
-    def __init(self, clt):
+    def __init(self, clt, time):
         self.clt = clt
-        self.configfile = open(os.path.join(SPIDER_PRO_DIR, 'config.cfg'), 'r')
-        config = ConfigParser.ConfigParser()
-        config.readfp(self.configfile)
-        self.time = config.get('SPIDER', 'start_time')
-        self.starttime = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S.%f')
+        self.starttime = time
     def plot(self):                    
         
         lasttime = datetime.datetime.today()
