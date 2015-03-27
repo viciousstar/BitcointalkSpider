@@ -7,7 +7,7 @@ from pymongo import MongoClient
 from ..settings import SPIDER_PLOT_DIR
 class plotUser(object):
     """docstring for plotUser"""
-    def __init(self, clt, time):
+    def __init__(self, clt, time):
         self.clt = clt
         self.starttime = time
     def plot(self):                    

@@ -9,7 +9,7 @@ from ..settings import SPIDER_PLOT_DIR
 
 # import numpy as np    May not use
 class plotThread:
-    def __init(self, clt, time):
+    def __init__(self, clt, time):
         self.clt = clt
         self.starttime = time
     def plot(self):

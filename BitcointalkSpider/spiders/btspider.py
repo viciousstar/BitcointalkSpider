@@ -42,7 +42,7 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 				continue
 		return user
 
-	def makefuct(self)
+	def makefuct(self):
 		fuctdict = {}
 		def g(s):
 			def f():
@@ -50,10 +50,9 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 					if len > 1:
 						user[s.lower()] = text
 					else:
-						user[s.lower()] = None
-					continue
+						user[s.lower()] = None					
 			return f
-		for character in ['Name: ', 'Posts: ', 'Activity:', 'Position: ', 'Date Registered: ', 'Last Active: ', 'ICQ:', 'AIM: ', 'MSN: ', 'YIM: ', 'Email: ', 'Website: ', 'Current Status: ', 'Gender: ', 'Age:', 'Location:', 'Local Time:', 'Language:', 'Signature:']
+		for character in ['Name: ', 'Posts: ', 'Activity:', 'Position: ', 'Date Registered: ', 'Last Active: ', 'ICQ:', 'AIM: ', 'MSN: ', 'YIM: ', 'Email: ', 'Website: ', 'Current Status: ', 'Gender: ', 'Age:', 'Location:', 'Local Time:', 'Language:', 'Signature:']:
 			fuctdict[character] = g(character)
 		return fuctdict
 
@@ -91,7 +90,10 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 	def parse_start_url(self, response):
 		for mainboard in response.xpath('//*[@id="bodyarea"]/div'):
 			for board in mainboard.xpath('./table/tr'):
-				url = board.xpath('(./td)[2]//a').extract()[0]
+				try:
+					url = board.xpath('(./td)[2]//a').extract()[0]
+				except:
+					continue
 				time = filter(lambda x : len(x.strip()), board.xpath('(./td)[4]//text()').extract())
 				if time == []:
 					continue
