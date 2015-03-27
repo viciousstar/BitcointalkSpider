@@ -31,75 +31,31 @@ class btthreadspider(scrapy.contrib.spiders.CrawlSpider):
 		user = User()
 		userinfo = response.xpath("//table[@border = '0'  and @cellpadding = '2']/tr")
 		# extract every info form list of  userinfo
+		fuctdict = self.makefuct()
 		for character in userinfo:
 			text = filter(unicode.strip, character.xpath(".//text()").extract())
 			if  text != []:
 				lenText = len(text)
-				textname = text[0]
-				text.pop(0)
-				if  textname.find("Name") != -1:
-					if len > 1:
-						user["name"] = text
-					else:
-						user["name"] = None
-					continue
-				if  textname.find("Posts") != -1:
-					if len > 1:
-						user["posts"] = text
-					else:
-						user["posts"] = None
-					continue
-				if  textname.find("Activity") != -1:
-					if len > 1:
-						user["activity"] = text
-					else:
-						user["activity"] = None
-					continue
-				if  textname.find("Position") != -1:
-					if len > 1:
-						user["position"] = text
-					else:
-						user["position"] = None
-					continue
-				if  textname.find("Date Registered") != -1:
-					if len > 1:
-						user["registerDate"] = text
-					else:
-						user["registerDate"] = None
-					continue
-				if  textname.find("Last Active") != -1:
-					if len > 1:
-						user["lastDate"] = text
-					else:
-						user["lastDate"] = None
-					continue
-				if  textname.find("Email: ") != -1:
-					if len > 1:
-						user["Email"] = text
-					else:
-						user["Email"] = None
-					continue
-				if  textname.find("Gender") != -1:
-					if len > 1:
-						user["gender"] = text
-					else:
-						user["gender"] = None
-					continue
-				if  textname.find("Age") != -1:
-					if len > 1:
-						user["age"] = text
-					else:
-						user["age"] = None
-					continue
-				if  textname.find("Signature") != -1:
-					if len > 1:
-						user["bitcoinAddress"] = text
-					else:
-						user["bitcoinAddress"] = None
-					continue
+				textname = text.pop(0)
+				fuctdict(textname)()
 			else:
 				continue
 		return user
+
+	def makefuct(self)
+		fuctdict = {}
+		def g(s):
+			def f():
+				if  textname.find(s) != -1:
+					if len > 1:
+						user[s.lower()] = text
+					else:
+						user[s.lower()] = None
+					continue
+			return f
+		for character in ['Name: ', 'Posts: ', 'Activity:', 'Position: ', 'Date Registered: ', 'Last Active: ', 'ICQ:', 'AIM: ', 'MSN: ', 'YIM: ', 'Email: ', 'Website: ', 'Current Status: ', 'Gender: ', 'Age:', 'Location:', 'Local Time:', 'Language:', 'Signature:']
+			fuctdict[character] = g(character)
+		return fuctdict
 
 	def extractPost(self, response):
 		post = Thread()
