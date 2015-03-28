@@ -33,5 +33,4 @@ class plotThread:
         pl.xticks(range(0, len(datadis)),[str(T[i].day) for i in range(0, len(datadis))])        #the time gap should be config
         pl.plot(range(0, len(datadis)), N)
         pl.grid(True)                                        #num of thread should appear in yticks
-        pl.savefig(os.path.join(SPIDER_PLOT_DIR ,''.join([str(self.time.year), str(self.time.month), 'threadPerDay.tif'])))
-        self.configfile.close()
+        pl.savefig(os.path.join(SPIDER_PLOT_DIR ,''.join([str(self.starttime.year), str(self.starttime.month), 'threadPerDay.tif'])))

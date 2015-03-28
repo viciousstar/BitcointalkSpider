@@ -18,7 +18,7 @@ class plotUser(object):
         dday = (lasttime - self.starttime).days
         for i in range(dday + 1):
             nowtime = self.starttime + datetime.timedelta(i)
-            nowthread = clt.find({'registerDate': {'$gt': nowtime, '$lt' : nowtime + datetime.timedelta(1)}})
+            nowthread = self.clt.find({'registerDate': {'$gt': nowtime, '$lt' : nowtime + datetime.timedelta(1)}})
             count = nowthread.count()
             datadis[nowtime] = count
         sortdata = sorted(datadis.items(), key = lambda d: d[0])
@@ -31,6 +31,5 @@ class plotUser(object):
         pl.xticks(range(0, len(datadis)),[str(T[i].day) for i in range(0, len(datadis))])
         pl.plot(range(0, len(datadis)), N)
         pl.grid(True)
-        pl.savefig(os.path.join(SPIDER_PLOT_DIR ,''.join([str(self.time.year), str(self.time.month), 'userPerDay.tif'])))
-        self.configfile.close()
+        pl.savefig(os.path.join(SPIDER_PLOT_DIR ,''.join([str(self.starttime.year), str(self.starttime.month), 'userPerDay.tif'])))
 

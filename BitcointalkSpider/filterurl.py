@@ -56,8 +56,9 @@ class FilterurlExtension(object):
             log.msg(self.time.isoformat() + 'Write config finish')
             info = dict(self.stats.get_stats())
             info.update(self.stats.spider_stats)
-            statinfo = json.dumps(info)
-            f = open(os.path.join(SPIDER_PRO_DIR, 'stat.info'), 'a+').write(statinfo)
+            statinfo = str(info)
+            f = open(os.path.join(SPIDER_PRO_DIR, 'stat.info'), 'a+')
+            f.write(statinfo)
             f.close()
         except:
             log.msg(self.time.isoformat() + 'Write config fail!')
