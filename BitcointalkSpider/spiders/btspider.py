@@ -16,13 +16,22 @@ class btthreadspider(scrapy.spider.Spider):
 
     def __init__(self):
         self.maxboardurl = {}
-    
+        # self.stats = self.crawler.stats
+        # self.stats.set_stats('thnewuser', 0)
+        # self.stats.set_stats('thnewthread', 0)
+        # self.stats.set_stats('realnewuser', 0)
+        # self.stats.set_stats('realnewthread', 0)
+  
     def genmax(self, response):
-        lasturl = response.xpath('//*[@id="toppages"]/a/@href').extract()[-1]
+        #generate the max url in the board url
+        #except deal with some board pages just having one page
+        try:
+            lasturl = response.xpath('//*[@id="toppages"]/a/@href').extract()[-1]
+        except:
+            lasturl = response.url
         key, value = lasturl.rsplit('.', 1)
         value = int(value)
-        self.maxboardurl.update({key, value})
-    
+        self.maxboardurl.update({key: value})
     def extractUser(self, response):
         user = User()
         userinfo = response.xpath("//table[@border = '0'  and @cellpadding = '2']/tr")
@@ -139,22 +148,24 @@ class btthreadspider(scrapy.spider.Spider):
         urls = response.xpath('//a/@href').extract()
         for url in urls:
                 pattren = re.compile("topic=\d+\.\d+$|action=profile;u=\d+$")
-                if pattren.match(url):
+                if pattren.search(url):
                     yield Request(url, callback = self.extractUser)
 
     def parse(self, response):
         for mainboard in response.xpath('//*[@id="bodyarea"]/div'):
             for board in mainboard.xpath('./table/tr'):
                 try:
-                    url = board.xpath('(./td)[2]//a').extract()[0]
+                    url = board.xpath('(./td)[2]//a/@href').extract()[0]
                 except:
                     continue
                 time = filter(lambda x : len(x.strip()), board.xpath('(./td)[4]//text()').extract())
                 if time == []:
                     continue
                 time = self.timeFormat(time[-1].strip())
+                # print time
+                # print url
                 if self.isNewTime(time):
-                    print url
+                    # print url
                     yield Request(url, callback = self.filterPost)
             
     def isNewTime(self, time):
@@ -164,7 +175,7 @@ class btthreadspider(scrapy.spider.Spider):
         if response.xpath("//*[@id='bodyarea']/div[2][@style='margin-bottom: 3ex; ']"):
             for board in response.xpath('//*[@id="bodyarea"]/div[2]/table/tr')[1 :]:      #the list[0] is empty
                 try:
-                    url = board.xpath('(./td)[2]//a').extract()[0]
+                    url = board.xpath('(./td)[2]//a/@href').extract()[0]
                 except:
                     continue
                 if url:     #some board have some subboard 
@@ -183,6 +194,7 @@ class btthreadspider(scrapy.spider.Spider):
         else:
             time = self.timeFormat(timelist[0].strip())
         url = response.url
+        print time, self.isNewTime(time)
         if self.isNewTime(time):
             k, n = url.rsplit('.', 1)
             n = int(n)
@@ -191,13 +203,15 @@ class btthreadspider(scrapy.spider.Spider):
             else:
                 self.genmax(response)
                 mn = self.maxboardurl[k]
+            print n, mn
             if n < mn:        
-                url = ''.join([key, '.', str(n + 40)])
+                url = ''.join([k, '.', str(n + 40)])
                 yield Request(url, callback = self.filterPost)  
                 urls = response.xpath('//a/@href').extract()
                 for url in urls:
                     pattren = re.compile("topic=\d+\.0$")
-                    if pattren.match(url):
+                    print url
+                    if pattren.search(url):
                         yield Request(url, callback = self.extractPost)
             
 
@@ -207,7 +221,6 @@ class btthreadspider(scrapy.spider.Spider):
                 today = datetime.today()
                 time = datetime.strptime(time.strip(), 'at %I:%M:%S %p')
                 time = time.replace(today.year, today.month, today.day)
-                print time
             else:
                 if 'on' in time:
                     time = datetime.strptime(time.strip(), "on %B %d, %Y, %I:%M:%S %p")
@@ -216,7 +229,7 @@ class btthreadspider(scrapy.spider.Spider):
 
             return time
         except:
-            log.msg()
+            log.msg('timeFormat fail.')
             return None
 
 
