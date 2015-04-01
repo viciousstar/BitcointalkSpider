@@ -147,7 +147,7 @@ class btthreadspider(scrapy.spider.Spider):
 
         urls = response.xpath('//a/@href').extract()
         for url in urls:
-                pattren = re.compile("topic=\d+\.\d+$|action=profile;u=\d+$")
+                pattren = re.compile("https://bitcointalk\.org/index\.php\?topic=\d+\.\d+$|https://bitcointalk\.org/index\.php\?action=profile;u=\d+$")
                 if pattren.search(url):
                     yield Request(url, callback = self.extractUser)
 
@@ -194,7 +194,7 @@ class btthreadspider(scrapy.spider.Spider):
         else:
             time = self.timeFormat(timelist[0].strip())
         url = response.url
-        print time, self.isNewTime(time)
+        # print time, self.isNewTime(time)
         if self.isNewTime(time):
             k, n = url.rsplit('.', 1)
             n = int(n)
@@ -203,14 +203,14 @@ class btthreadspider(scrapy.spider.Spider):
             else:
                 self.genmax(response)
                 mn = self.maxboardurl[k]
-            print n, mn
+            # print n, mn
             if n < mn:        
                 url = ''.join([k, '.', str(n + 40)])
                 yield Request(url, callback = self.filterPost)  
                 urls = response.xpath('//a/@href').extract()
                 for url in urls:
-                    pattren = re.compile("topic=\d+\.0$")
-                    print url
+                    pattren = re.compile("https://bitcointalk\.org/index\.php\?topic=\d+\.0$")
+                    # print url
                     if pattren.search(url):
                         yield Request(url, callback = self.extractPost)
             

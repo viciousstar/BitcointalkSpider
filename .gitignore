@@ -3,3 +3,5 @@
 *.json
 *.pyc
 *.html
+*.xml
+/.idea

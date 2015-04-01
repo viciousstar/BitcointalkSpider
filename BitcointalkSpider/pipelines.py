@@ -34,23 +34,30 @@ class JsonWithEncodingPipeline(object):
         except pymongo.errors.CollectionInvalid:
             self.thclt = self.db[thcltname]
             self.userclt = self.db[usercltname]
-    
+        userpath = os.path.join(SPIDER_DATA_DIR, "User")
+        if os.path.exists(userpath):
+            pass
+        else:
+            os.makedirs(userpath)
 
+        threadpath = os.path.join(SPIDER_DATA_DIR, "Thread")
+        if os.path.exists(threadpath):
+            pass
+        else:
+            os.makedirs(threadpath)
+        self.userfile = None
+        self.threadfile = None
     def process_item(self, item, spider):
         localtime = datetime.today()
         if  item.__class__ == User:
-            #distinguish 'Today at xxxxxx' time format
-            try:
-                usertime = timeFormat(item['registerDate'][-1])
-            except:
-                usertime = None
+            #distinguish 'at xxxxxx' time format
+            # try:
+            usertime = timeFormat(item['registerDate'][-1].strip())
+            # except:
+            # usertime = None
             if usertime and usertime > self.time:
-                userpath = os.path.join(SPIDER_DATA_DIR, "User")
-                if os.path.exists(userpath):
-                    pass
-                else:
-                    os.makedirs(userpath)
-                self.userfile = codecs.open(os.path.join(userpath,str(self.time.year) + str(self.time.month)), "ab", encoding = "utf-8")
+                if not self.userfile:
+                    self.userfile = codecs.open(os.path.join(userpath,str(self.time.year) + str(self.time.month)), "ab", encoding = "utf-8")
                 line = json.dumps(dict(item), ensure_ascii=False) + "\n"
                 self.userfile.write(line)
                 ltimelen = len(item["lastDate"])
@@ -63,17 +70,13 @@ class JsonWithEncodingPipeline(object):
                 self.userclt.save(dict(item))
         
         if item.__class__ == Thread:
-            try:
-                threadtime = timeFormat(item['time'][-1])
-            except:
-                threadtime = None
+            # try:
+            threadtime = timeFormat(item['time'][-1].strip())
+            # except:
+                # threadtime = None
             if threadtime and threadtime > self.time:
-                threadpath = os.path.join(SPIDER_DATA_DIR, "Thread")
-                if os.path.exists(threadpath):
-                    pass
-                else:
-                    os.makedirs(threadpath)
-                self.threadfile = codecs.open(os.path.join(threadpath, str(self.time.year) + str(self.time.month)), "ab", encoding = "utf-8")
+                if not self.threadfile:
+                    self.threadfile = codecs.open(os.path.join(threadpath, str(self.time.year) + str(self.time.month)), "ab", encoding = "utf-8")
                 #There we can add some \n to make it comfortable for people to read
                 line = json.dumps(dict(item), ensure_ascii=False) + "\n"
                 self.threadfile.write(line)
@@ -87,9 +90,9 @@ class JsonWithEncodingPipeline(object):
     def close_spider(self, spider):
         plotThread(self.thclt, self.time).plot()
         plotUser(self.userclt, self.time).plot()
-        try:
-            self.userfile.close()
-            self.threadfile.close()
-            self.client.close()
-        except:
-            log.msg('pipeline file close fail')
+        # try:
+        self.userfile.close()
+        self.threadfile.close()
+        self.client.close()
+        # except:
+        # log.msg('pipeline file close fail')
