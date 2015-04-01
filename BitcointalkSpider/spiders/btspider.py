@@ -104,21 +104,22 @@ class btthreadspider(scrapy.spider.Spider):
                     continue
             else:
                 continue
+
         return user
 
-    def makefuct(self, user):
-        fuctdict = {}
-        def g(s):
-            def f(textname, text):
-                if  textname.find(s) != -1:
-                    if len > 1:
-                        user[s.lower()] = text
-                    else:
-                        user[s.lower()] = None                  
-            return f
-        for character in ['Name: ', 'Posts: ', 'Activity:', 'Position: ', 'Date Registered: ', 'Last Active: ', 'ICQ:', 'AIM: ', 'MSN: ', 'YIM: ', 'Email: ', 'Website: ', 'Current Status: ', 'Gender: ', 'Age:', 'Location:', 'Local Time:', 'Language:', 'Signature:']:
-            fuctdict[character] = g(character)
-        return fuctdict
+    # def makefuct(self, user):
+    #     fuctdict = {}
+    #     def g(s):
+    #         def f(textname, text):
+    #             if  textname.find(s) != -1:
+    #                 if len > 1:
+    #                     user[s.lower()] = text
+    #                 else:
+    #                     user[s.lower()] = None                  
+    #         return f
+    #     for character in ['Name: ', 'Posts: ', 'Activity:', 'Position: ', 'Date Registered: ', 'Last Active: ', 'ICQ:', 'AIM: ', 'MSN: ', 'YIM: ', 'Email: ', 'Website: ', 'Current Status: ', 'Gender: ', 'Age:', 'Location:', 'Local Time:', 'Language:', 'Signature:']:
+    #         fuctdict[character] = g(character)
+    #     return fuctdict
 
     def extractPost(self, response):
         post = Thread()
@@ -129,7 +130,7 @@ class btthreadspider(scrapy.spider.Spider):
         smallPost = response.xpath("//*[@id = 'quickModForm']/table[1]//tr[@class and @class = '%s']" % tr)
         # if we want tocontinue use xpath on exsit xpath, we must add "." to represent the present node
         post["user"] = smallPost[0].xpath("(.//a[@href])[1]/text()").extract()
-        post["time"] = smallPost[0].xpath("(.//div[@class = 'smalltext'])[2]/text()").extract()
+        post["time"] = smallPost[0].xpath("(.//div[@class = 'smalltext'])[2]//text()").extract()
         post["url"] = response.url
         boardlist = response.xpath("//a[@class = 'nav']/text()").extract()
         #lenBoardlist //a[@class = 'nav']/text() occur two postion (head and tail)
@@ -140,16 +141,23 @@ class btthreadspider(scrapy.spider.Spider):
             smallpost = Post()
             smallpost["user"] = everyPost.xpath("(.//a[@href])[1]/text()").extract()
             smallpost["topic"] = everyPost.xpath(".//*[@class = 'subject']/a/text()").extract()
-            smallpost["time"] =  everyPost.xpath("(.//div[@class = 'smalltext'])[2]/text()").extract()
+            smallpost["time"] =  everyPost.xpath("(.//div[@class = 'smalltext'])[2]//text()").extract()
             smallpost["content"] = everyPost.xpath(".//div[@class = 'post']/text()").extract()
             post["content"].append(dict(smallpost))
         yield post
 
+        dup = response.meta['set']
         urls = response.xpath('//a/@href').extract()
+        thpattren = re.compile(response.url.rsplit('.', 1)[0] + "\.\d+$")
+        userpattren = re.compile("https://bitcointalk\.org/index\.php\?action=profile;u=\d+$")
         for url in urls:
-                pattren = re.compile("https://bitcointalk\.org/index\.php\?topic=\d+\.\d+$|https://bitcointalk\.org/index\.php\?action=profile;u=\d+$")
-                if pattren.search(url):
-                    yield Request(url, callback = self.extractUser)
+            if thpattren.match(url) and url not in dup:
+                dup.add(url)
+                rqst = Request(url=url, callback = self.extractPost)
+                rqst.meta['set'] = dup
+                yield rqst
+            elif userpattren.match(url):
+                yield Request(url=url, callback = self.extractUser)
 
     def parse(self, response):
         for mainboard in response.xpath('//*[@id="bodyarea"]/div'):
@@ -166,7 +174,7 @@ class btthreadspider(scrapy.spider.Spider):
                 # print url
                 if self.isNewTime(time):
                     # print url
-                    yield Request(url, callback = self.filterPost)
+                    yield Request(url=url, callback = self.filterPost)
             
     def isNewTime(self, time):
         return time >= self.crawler.stats.get_value('last_start_time')
@@ -184,7 +192,7 @@ class btthreadspider(scrapy.spider.Spider):
                         continue
                     time = self.timeFormat(time[-1].strip())
                     if self.isNewTime(time):
-                        yield Request(url, callback = self.filterPost)
+                        yield Request(url=url, callback = self.filterPost)
             timelist = response.xpath('//*[@id="bodyarea"]/div[3]/table/tr[2]/td[7]/span//text()').extract()
         else:
             timelist = response.xpath('//*[@id="bodyarea"]/div[2]/table/tr[2]/td[7]/span//text()').extract()
@@ -206,14 +214,16 @@ class btthreadspider(scrapy.spider.Spider):
             # print n, mn
             if n < mn:        
                 url = ''.join([k, '.', str(n + 40)])
-                yield Request(url, callback = self.filterPost)  
+                yield Request(url=url, callback = self.filterPost)  
                 urls = response.xpath('//a/@href').extract()
                 for url in urls:
                     pattren = re.compile("https://bitcointalk\.org/index\.php\?topic=\d+\.0$")
                     # print url
                     if pattren.search(url):
-                        yield Request(url, callback = self.extractPost)
-            
+                        rqst = Request(url=url, callback = self.extractPost)
+                        rqst.meta['set'] = set()
+                        rqst.meta['set'].add(url)
+                        yield rqst
 
     def timeFormat(self, time):
         try:

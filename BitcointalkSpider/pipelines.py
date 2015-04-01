@@ -50,11 +50,15 @@ class JsonWithEncodingPipeline(object):
     def process_item(self, item, spider):
         localtime = datetime.today()
         if  item.__class__ == User:
-            #distinguish 'at xxxxxx' time format
-            # try:
-            usertime = timeFormat(item['registerDate'][-1].strip())
-            # except:
-            # usertime = None
+            # print item
+            try:
+                if item['registerDate']:
+                    usertime = timeFormat(item['registerDate'][-1].strip())
+                else:
+                    usertime = None
+            except:
+                print item
+                return
             if usertime and usertime > self.time:
                 if not self.userfile:
                     self.userfile = codecs.open(os.path.join(userpath,str(self.time.year) + str(self.time.month)), "ab", encoding = "utf-8")
@@ -68,12 +72,13 @@ class JsonWithEncodingPipeline(object):
                 item['activity'] = int(item['activity'][0]) 
                 item['posts'] = int(item['posts'][0])
                 self.userclt.save(dict(item))
-        
+                print 'save true'
         if item.__class__ == Thread:
-            # try:
-            threadtime = timeFormat(item['time'][-1].strip())
-            # except:
-                # threadtime = None
+            # print item
+            if item['time']:
+                threadtime = timeFormat(item['time'][-1].strip())
+            else:
+                threadtime = None
             if threadtime and threadtime > self.time:
                 if not self.threadfile:
                     self.threadfile = codecs.open(os.path.join(threadpath, str(self.time.year) + str(self.time.month)), "ab", encoding = "utf-8")
@@ -86,7 +91,7 @@ class JsonWithEncodingPipeline(object):
                 item['month'] = time.month
                 item['day'] = time.day 
                 self.thclt.save(dict(item))
-    
+                print 'save true'
     def close_spider(self, spider):
         plotThread(self.thclt, self.time).plot()
         plotUser(self.userclt, self.time).plot()

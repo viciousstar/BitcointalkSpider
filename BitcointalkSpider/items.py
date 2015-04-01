@@ -9,7 +9,7 @@ class  User(scrapy.Item):
 	posts = scrapy.Field()
 	activity = scrapy.Field()
 	position = scrapy.Field()
-	registerDate= scrapy.Field()
+	registerDate = scrapy.Field()
 	lastDate = scrapy.Field()
 	Email = scrapy.Field()
 	gender = scrapy.Field()
