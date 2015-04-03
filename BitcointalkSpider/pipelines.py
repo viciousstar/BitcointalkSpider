@@ -57,9 +57,10 @@ class JsonWithEncodingPipeline(object):
                 else:
                     usertime = None
             except:
-                print item
                 return
+            print usertime
             if usertime and usertime > self.time:
+                print usertime
                 if not self.userfile:
                     self.userfile = codecs.open(os.path.join(userpath,str(self.time.year) + str(self.time.month)), "ab", encoding = "utf-8")
                 line = json.dumps(dict(item), ensure_ascii=False) + "\n"

@@ -33,6 +33,7 @@ class btthreadspider(scrapy.spider.Spider):
         value = int(value)
         self.maxboardurl.update({key: value})
     def extractUser(self, response):
+        print response.url
         user = User()
         userinfo = response.xpath("//table[@border = '0'  and @cellpadding = '2']/tr")
         # extract every info form list of  userinfo
@@ -104,7 +105,7 @@ class btthreadspider(scrapy.spider.Spider):
                     continue
             else:
                 continue
-
+        # print user
         return user
 
     # def makefuct(self, user):
