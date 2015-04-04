@@ -10,4 +10,4 @@ BitcointalkSpider is a web crawler targeting at crawling down all the data of [B
 2. install mongodb and pymongo
 3. download it, switch to its folder in the terminal, and execute "scrapy crawl btspider"
 
-FoOTOo Lab 2014~2015
+FoOTOo Lab 2014-2015
