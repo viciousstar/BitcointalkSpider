@@ -19,7 +19,6 @@ class User(scrapy.Item):
 	month = scrapy.Field()
 	day = scrapy.Field()
     
-
 class Thread(scrapy.Item):
 	# store posts' information
 	topic = scrapy.Field()
@@ -32,6 +31,4 @@ class Thread(scrapy.Item):
 	year = scrapy.Field()
 	month = scrapy.Field()
 	day = scrapy.Field()
-
-class Post(Thread):
-	pass
+	flag = scrapy.Field()

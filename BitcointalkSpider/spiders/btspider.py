@@ -102,42 +102,21 @@ class btthreadspider(scrapy.spider.Spider):
         return user
 
     def extractPost(self, response):
-        post = Thread()
-        post["topic"] = response.xpath("//*[@id = 'top_subject']/text()")[0].extract().split(":")[1]
-        post["content"] = []
-        tr =  str(response.xpath("//*[@id = 'quickModForm']/table[1]/tr[1]/@class").extract()[0])
-        #every post
-        smallPost = response.xpath("//*[@id = 'quickModForm']/table[1]//tr[@class and @class = '%s']" % tr)
-        # if we want tocontinue use xpath on exsit xpath, we must add "." to represent the present node
-        post["user"] = smallPost[0].xpath("(.//a[@href])[1]/text()").extract()
-        post["time"] = smallPost[0].xpath("(.//div[@class = 'smalltext'])[2]//text()").extract()
-        post["url"] = response.url
-        boardlist = response.xpath("//a[@class = 'nav']/text()").extract()
-        #lenBoardlist //a[@class = 'nav']/text() occur two postion (head and tail)
-        lenBoardlist = len(boardlist) / 2
-        post["ofBoard"] = [boardlist[x] for x in range(0, lenBoardlist)]
-        #store every post partly by loop
-        for  everyPost in smallPost:            
-            smallpost = Post()
-            smallpost["user"] = everyPost.xpath("(.//a[@href])[1]/text()").extract()
-            smallpost["topic"] = everyPost.xpath(".//*[@class = 'subject']/a/text()").extract()
-            smallpost["time"] =  everyPost.xpath("(.//div[@class = 'smalltext'])[2]//text()").extract()
-            smallpost["content"] = everyPost.xpath(".//div[@class = 'post']/text()").extract()
-            post["content"].append(dict(smallpost))
-        yield post
+        posts = response.xpath('//div[@style="margin: 0 5ex;"]')
+        infos = response.xpath('//b/text()')
+        ofBoard = response.xpath('//h2/text()').extract()[0].split(' => ')[:-1]
+        n = len(posts)
 
-        dup = response.meta['set']
-        urls = response.xpath('//a/@href').extract()
-        thpattren = re.compile(response.url.rsplit('.', 1)[0] + "\.\d+$")
-        userpattren = re.compile("https://bitcointalk\.org/index\.php\?action=profile;u=\d+$")
-        for url in urls:
-            if thpattren.match(url) and url not in dup:
-                dup.add(url)
-                rqst = Request(url=url, callback = self.extractPost)
-                rqst.meta['set'] = dup
-                yield rqst
-            elif userpattren.match(url):
-                yield Request(url=url, callback = self.extractUser)
+        for i in range(n):
+            thread = Thread()
+            thread['url'] = response.url
+            thread['topic'] = infos[i*3].extract()
+            thread['user'] = infos[i*3+1].extract()
+            thread['time'] = infos[i*3+2].extract()
+            thread['content'] = posts[i].extract()
+            thread['flag'] = 0 if i==0 else 1
+            thread['ofBoard'] = ofBoard
+            yield thread
 
     def parse(self, response):
         #just crawl the first url
@@ -158,9 +137,8 @@ class btthreadspider(scrapy.spider.Spider):
                     yield Request(url=url, callback = self.filterPost)
             
     def isNewTime(self, time):
-        if time == None:
-            return True #rather crawl more than ignore
-        return time >= self.crawler.stats.get_value('last_start_time')
+        #rather crawl more than ignore
+        return time is None or time >= self.crawler.stats.get_value('last_start_time')
 
     def filterPost(self, response):
         if response.xpath("//*[@id='bodyarea']/div[2][@style='margin-bottom: 3ex; ']"): #if has child board
