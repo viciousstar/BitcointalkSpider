@@ -3,7 +3,7 @@
 import scrapy
 
 
-class  User(scrapy.Item):
+class User(scrapy.Item):
 	# store user's infromation
 	name = scrapy.Field()
 	posts = scrapy.Field()

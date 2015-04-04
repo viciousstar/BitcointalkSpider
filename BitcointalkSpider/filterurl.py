@@ -68,7 +68,7 @@ class SaveRequestSeen(RFPDupeFilter):
         fp = self.request_fingerprint(request)
         if fp in self.fingerprints:
             return True
-        self.fingerprints.add(fp)       
+        self.fingerprints.add(fp)
         if not re.match('board=\d+$|topic=\d+\.0$' ,request.url):       
             if self.file:
                 self.file.write(fp + os.linesep)
