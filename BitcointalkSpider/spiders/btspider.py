@@ -169,12 +169,10 @@ class btthreadspider(scrapy.spider.Spider):
         if self.isNewTime(time):
             urls = response.xpath('//a/@href').extract()
             for url in urls:
-                pattren = re.compile("https://bitcointalk\.org/index\.php\?topic=\d+\.0$")
+                pattren = re.compile("https://bitcointalk\.org/index\.php\?action=printpage;topic=\d+\.0$")
                 if pattren.match(url):
-                    rqst = Request(url=url, callback = self.extractPost)
-                    rqst.meta['set'] = set()
-                    rqst.meta['set'].add(url)
-                    yield rqst
+                    yield Request(url=url, callback = self.extractPost)
+
             k, n = url.rsplit('.', 1)
             n = int(n)
             if k not in self.maxboardurl:
