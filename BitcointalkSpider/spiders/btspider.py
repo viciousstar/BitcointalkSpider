@@ -7,6 +7,7 @@ from scrapy.contrib.linkextractors import LinkExtractor
 from scrapy import log
 from scrapy.http import Request
 from ..items import User, Post, Thread
+from BitcointalkSpider.util import incAttr
 
 class btthreadspider(scrapy.spider.Spider):
 
@@ -16,24 +17,10 @@ class btthreadspider(scrapy.spider.Spider):
 
     def __init__(self):
         self.maxboardurl = {}
-        # self.stats = self.crawler.stats
-        # self.stats.set_stats('thnewuser', 0)
-        # self.stats.set_stats('thnewthread', 0)
-        # self.stats.set_stats('realnewuser', 0)
-        # self.stats.set_stats('realnewthread', 0)
-  
-    def genmax(self, response):
-        #generate the max url in the board url
-        #except deal with some board pages just having one page
-        try:
-            lasturl = response.xpath('//*[@id="toppages"]/a/@href').extract()[-1]
-        except:
-            lasturl = response.url
-        key, value = lasturl.rsplit('.', 1)
-        value = int(value)
-        self.maxboardurl.update({key: value})
+        self.stats = {}
+    
     def extractUser(self, response):
-        print response.url
+        incAttr(self.stats, 'recieveUserNum')
         user = User()
         userinfo = response.xpath("//table[@border = '0'  and @cellpadding = '2']/tr")
         # extract every info form list of  userinfo
@@ -41,86 +28,78 @@ class btthreadspider(scrapy.spider.Spider):
             text = filter(unicode.strip, character.xpath(".//text()").extract())
             if  text != []:
                 lenText = len(text)
-                textname = text[0]
-                text.pop(0)
+                textname = text.pop(0)
                 if  textname.find("Name") != -1:
                     if len > 1:
                         user["name"] = text
                     else:
                         user["name"] = None
                     continue
-                if  textname.find("Posts") != -1:
+                elif  textname.find("Posts") != -1:
                     if len > 1:
                         user["posts"] = text
                     else:
                         user["posts"] = None
                     continue
-                if  textname.find("Activity") != -1:
+                elif  textname.find("Activity") != -1:
                     if len > 1:
                         user["activity"] = text
                     else:
                         user["activity"] = None
                     continue
-                if  textname.find("Position") != -1:
+                elif  textname.find("Position") != -1:
                     if len > 1:
                         user["position"] = text
                     else:
                         user["position"] = None
                     continue
-                if  textname.find("Date Registered") != -1:
+                elif  textname.find("Date Registered") != -1:
                     if len > 1:
                         user["registerDate"] = text
                     else:
                         user["registerDate"] = None
                     continue
-                if  textname.find("Last Active") != -1:
+                elif  textname.find("Last Active") != -1:
                     if len > 1:
                         user["lastDate"] = text
                     else:
                         user["lastDate"] = None
                     continue
-                if  textname.find("Email: ") != -1:
+                elif  textname.find("Email: ") != -1:
                     if len > 1:
                         user["Email"] = text
                     else:
                         user["Email"] = None
                     continue
-                if  textname.find("Gender") != -1:
+                elif  textname.find("Gender") != -1:
                     if len > 1:
                         user["gender"] = text
                     else:
                         user["gender"] = None
                     continue
-                if  textname.find("Age") != -1:
+                elif  textname.find("Age") != -1:
                     if len > 1:
                         user["age"] = text
                     else:
                         user["age"] = None
                     continue
-                if  textname.find("Signature") != -1:
+                elif  textname.find("Signature") != -1:
                     if len > 1:
                         user["bitcoinAddress"] = text
                     else:
                         user["bitcoinAddress"] = None
                     continue
+                else:
+                    incAttr(self.stats, 'ignoreUserAttrNum')
+                    log.msg('%s do not extract info in %s!' % response.body, response.url, level = log.ERROR)
             else:
-                continue
-        # print user
+                incAttr(self.stats, 'ignoreUserNum')
+                log.msg('%s do not extract info in %s!' % response.body, response.url, level = log.ERROR)
+        if user.fields.values() == [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]:
+            incAttr(self.stats, 'ignoreUserNum')
+            log.msg('%s do not extract info in %s!' % response.body, response.url, level = log.ERROR)
+            return         
         return user
-
-    # def makefuct(self, user):
-    #     fuctdict = {}
-    #     def g(s):
-    #         def f(textname, text):
-    #             if  textname.find(s) != -1:
-    #                 if len > 1:
-    #                     user[s.lower()] = text
-    #                 else:
-    #                     user[s.lower()] = None                  
-    #         return f
-    #     for character in ['Name: ', 'Posts: ', 'Activity:', 'Position: ', 'Date Registered: ', 'Last Active: ', 'ICQ:', 'AIM: ', 'MSN: ', 'YIM: ', 'Email: ', 'Website: ', 'Current Status: ', 'Gender: ', 'Age:', 'Location:', 'Local Time:', 'Language:', 'Signature:']:
-    #         fuctdict[character] = g(character)
-    #     return fuctdict
 
     def extractPost(self, response):
         post = Thread()
@@ -161,35 +140,41 @@ class btthreadspider(scrapy.spider.Spider):
                 yield Request(url=url, callback = self.extractUser)
 
     def parse(self, response):
+        #just crawl the first url
         for mainboard in response.xpath('//*[@id="bodyarea"]/div'):
             for board in mainboard.xpath('./table/tr'):
-                try:
-                    url = board.xpath('(./td)[2]//a/@href').extract()[0]
-                except:
+                url = board.xpath('(./td)[2]//a/@href').extract()
+                if url:
+                    url = url[0]
+                else:
                     continue
                 time = filter(lambda x : len(x.strip()), board.xpath('(./td)[4]//text()').extract())
                 if time == []:
+                    incAttr(self.stats, 'ignoreBoardNum')
+                    log.msg('The board %s do not have time.' %url, level=log.ERROR)
                     continue
                 time = self.timeFormat(time[-1].strip())
-                # print time
-                # print url
                 if self.isNewTime(time):
-                    # print url
                     yield Request(url=url, callback = self.filterPost)
             
     def isNewTime(self, time):
+        if time == None:
+            return True #rather crawl more than ignore
         return time >= self.crawler.stats.get_value('last_start_time')
 
     def filterPost(self, response):
-        if response.xpath("//*[@id='bodyarea']/div[2][@style='margin-bottom: 3ex; ']"):
+        if response.xpath("//*[@id='bodyarea']/div[2][@style='margin-bottom: 3ex; ']"): #if has child board
             for board in response.xpath('//*[@id="bodyarea"]/div[2]/table/tr')[1 :]:      #the list[0] is empty
-                try:
-                    url = board.xpath('(./td)[2]//a/@href').extract()[0]
-                except:
+                url = board.xpath('(./td)[2]//a/@href').extract()
+                if url:
+                    url = url[0]
+                else:
                     continue
                 if url:     #some board have some subboard 
                     time = filter(lambda x : len(x.strip()), board.xpath('(./td)[4]//text()').extract())
                     if not time:
+                        incAttr(self.stats, 'ignoreSubboardNum')
+                        log.msg('The board %s do not have time.' %url, level=log.ERROR)
                         continue
                     time = self.timeFormat(time[-1].strip())
                     if self.isNewTime(time):
@@ -203,28 +188,24 @@ class btthreadspider(scrapy.spider.Spider):
         else:
             time = self.timeFormat(timelist[0].strip())
         url = response.url
-        # print time, self.isNewTime(time)
         if self.isNewTime(time):
+            urls = response.xpath('//a/@href').extract()
+            for url in urls:
+                pattren = re.compile("https://bitcointalk\.org/index\.php\?topic=\d+\.0$")
+                if pattren.match(url):
+                    rqst = Request(url=url, callback = self.extractPost)
+                    rqst.meta['set'] = set()
+                    rqst.meta['set'].add(url)
+                    yield rqst
             k, n = url.rsplit('.', 1)
             n = int(n)
-            if k in self.maxboardurl:
-                mn = self.maxboardurl[k]
-            else:
+            if k not in self.maxboardurl:
                 self.genmax(response)
-                mn = self.maxboardurl[k]
-            # print n, mn
+            mn = self.maxboardurl[k]
+            url = ''.join([k, '.', str(n + 40)])
+            #generate next board url   
             if n < mn:        
-                url = ''.join([k, '.', str(n + 40)])
                 yield Request(url=url, callback = self.filterPost)  
-                urls = response.xpath('//a/@href').extract()
-                for url in urls:
-                    pattren = re.compile("https://bitcointalk\.org/index\.php\?topic=\d+\.0$")
-                    # print url
-                    if pattren.search(url):
-                        rqst = Request(url=url, callback = self.extractPost)
-                        rqst.meta['set'] = set()
-                        rqst.meta['set'].add(url)
-                        yield rqst
 
     def timeFormat(self, time):
         try:
@@ -240,8 +221,17 @@ class btthreadspider(scrapy.spider.Spider):
 
             return time
         except:
-            log.msg('timeFormat fail.')
+            log.msg('timeFormat fail.', level = log.ERROR)
             return None
+
+def genmax(self, response):
+        #generate the max url in the board url
+        #else deal with some board pages just having one page
+        boards = response.xpath('//*[@id="toppages"]/a/@href').extract()
+        lasturl = boards[-1] if boards else response.url
+        key, value = lasturl.rsplit('.', 1)
+        value = int(value)
+        self.maxboardurl.update({key: value})
 
 
 

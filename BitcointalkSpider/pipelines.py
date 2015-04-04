@@ -13,59 +13,55 @@ from .settings import SPIDER_DATA_DIR, SPIDER_PRO_DIR
 from .Mongodb.plotAllThread import plotThread
 from .Mongodb.plotAllUser import plotUser
 from BitcointalkSpider.util import timeFormat
+from BitcointalkSpider.util import creatPath
+from BitcointalkSpider.util import incAttr
 
 class JsonWithEncodingPipeline(object):
-#solve outfile code question by output json
+#solve out file code problem by output json
     def open_spider(self, spider):
         self.nowtime = datetime.today()
         try:
             self.client = MongoClient()
             self.db = self.client.bitdb
         except:
-            log.msg(self.nowtime.isoformat() + 'Start Mongod Fail')
+            log.msg('Start Mongod Fail', level=log.ERROR)
             raise Exception('Start Mongod Fail')
-        self.time = spider.crawler.stats.get_value('last_start_time')
+        self.stats = spider.crawler.stats
+        self.stats.set_value('saveUserNum', 0)
+        self.stats.set_value('saveThreadNum', 0)
+        self.time = self.stats.get_value('last_start_time')
+        #everymonth has its collection 
         thcltname = ''.join(['thread', str(self.time.year), str(self.time.month)])
         usercltname = ''.join(['user', str(self.time.year), str(self.time.month)])
-
-        try:
-            self.thclt = self.db.create_collection('thread' + str(self.time.year) + str(self.time.month))
-            self.userclt = self.db.create_collection('user' + str(self.time.year) + str(self.time.month))
-        except pymongo.errors.CollectionInvalid:
-            self.thclt = self.db[thcltname]
-            self.userclt = self.db[usercltname]
+        #if it not has collection it will creat itself
+        self.thclt = self.db[thcltname]
+        self.userclt = self.db[usercltname]
         userpath = os.path.join(SPIDER_DATA_DIR, "User")
-        if os.path.exists(userpath):
-            pass
-        else:
-            os.makedirs(userpath)
-
         threadpath = os.path.join(SPIDER_DATA_DIR, "Thread")
-        if os.path.exists(threadpath):
-            pass
-        else:
-            os.makedirs(threadpath)
+        creatPath(userpath, threadpath)
         self.userfile = None
         self.threadfile = None
+  
     def process_item(self, item, spider):
         localtime = datetime.today()
+
         if  item.__class__ == User:
-            # print item
-            try:
-                if item['registerDate']:
-                    usertime = timeFormat(item['registerDate'][-1].strip())
-                else:
-                    usertime = None
-            except:
-                return
-            print usertime
+            if item['registerDate']:
+                usertime = timeFormat(item['registerDate'][-1].strip())
+            else:
+                usertime = None
+            
+            if item['lastDate']:
+                lastDate = timeFormat(item['lastDate'][-1].strip())
+            else:
+                lastDate = None
+            
             if usertime and usertime > self.time:
-                print usertime
                 if not self.userfile:
                     self.userfile = codecs.open(os.path.join(userpath,str(self.time.year) + str(self.time.month)), "ab", encoding = "utf-8")
                 line = json.dumps(dict(item), ensure_ascii=False) + "\n"
                 self.userfile.write(line)
-                ltimelen = len(item["lastDate"])
+                item['lastDate'] = lastDate
                 item['registerDate'] = usertime
                 item['year'] = registerDate.year
                 item['month'] = registerDate.month
@@ -73,7 +69,7 @@ class JsonWithEncodingPipeline(object):
                 item['activity'] = int(item['activity'][0]) 
                 item['posts'] = int(item['posts'][0])
                 self.userclt.save(dict(item))
-                print 'save true'
+                self.stats.inc_value('saveUserNum')
         if item.__class__ == Thread:
             # print item
             if item['time']:
@@ -92,7 +88,8 @@ class JsonWithEncodingPipeline(object):
                 item['month'] = time.month
                 item['day'] = time.day 
                 self.thclt.save(dict(item))
-                print 'save true'
+                self.stats.inc_value('saveThreadNum')
+
     def close_spider(self, spider):
         plotThread(self.thclt, self.time).plot()
         plotUser(self.userclt, self.time).plot()

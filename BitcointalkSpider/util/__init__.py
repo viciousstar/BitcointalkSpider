@@ -9,3 +9,16 @@ def timeFormat(time):
         return time
     except:
         return None
+
+def incAttr(dct, s):
+    if s in dct:
+        dct[s] = dct[s] + 1
+    else:
+        dct[s] = 0
+
+def creatPath(*args):
+    for s in args:
+        if os.path.exists(s):
+            pass
+        else:
+            os.makedirs(s)
