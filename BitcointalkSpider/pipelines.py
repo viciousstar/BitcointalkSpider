@@ -8,7 +8,7 @@ import pymongo
 from scrapy import log
 from pymongo import MongoClient
 import ConfigParser
-from .items import User, Post, Thread
+from .items import User, Thread
 from .settings import SPIDER_DATA_DIR, SPIDER_PRO_DIR
 from .Mongodb.plotAllThread import plotThread
 from .Mongodb.plotAllUser import plotUser

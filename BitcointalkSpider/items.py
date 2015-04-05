@@ -31,4 +31,4 @@ class Thread(scrapy.Item):
 	year = scrapy.Field()
 	month = scrapy.Field()
 	day = scrapy.Field()
-	flag = scrapy.Field()
+	flag = scrapy.Field()  #Thread if 1 else 0
