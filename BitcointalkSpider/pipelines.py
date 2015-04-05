@@ -67,11 +67,9 @@ class JsonWithEncodingPipeline(object):
                 item['day'] = usertime.day 
                 item['activity'] = int(item['activity'][0]) 
                 item['posts'] = int(item['posts'][0])
-                self.userclt.update({'name': item['name']}, item.fields, upsert = True)
+                self.userclt.update({'name': item['name']}, dict(item), upsert = True)
                 self.stats.inc_value('saveUserNum')
-                return item
         if item.__class__ == Thread:
-            # print item
             if item['time']:
                 threadtime = timeFormat(item['time'].strip())
             else:
@@ -79,16 +77,15 @@ class JsonWithEncodingPipeline(object):
             if threadtime and threadtime > self.time:
                 if not self.threadfile:
                     self.threadfile = codecs.open(os.path.join(self.threadpath, str(self.time.year) + str(self.time.month)), "ab", encoding = "utf-8")
-                #There we can add some \n to make it comfortable for people to read
                 line = json.dumps(item.fields, ensure_ascii=False) + "\n"
                 self.threadfile.write(line)
                 item['time'] = threadtime
                 item['year'] = threadtime.year
                 item['month'] = threadtime.month
                 item['day'] = threadtime.day 
-                self.thclt.update(item.fields, item.fields, upsert = True)
+                self.thclt.update(dict(item), dict(item), upsert = True)
                 self.stats.inc_value('saveThreadNum')
-                return item
+
     def close_spider(self, spider):
         plotThread(self.thclt, self.time).plot()
         plotUser(self.userclt, self.time).plot()
