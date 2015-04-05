@@ -15,14 +15,13 @@ from BitcointalkSpider.util import incAttr
 class btuserspider(scrapy.spider.Spider):
     name = "btuserspider"
     allowed_domains = ["bitcointalk.org"]
-    start_urls = ["https://bitcointalk.org/index.php"]
 
-    def parse(self, response):
-        return scrapy.FormRequest(
+    def start_requests(self):
+        return [scrapy.FormRequest(
             "https://bitcointalk.org/index.php?action=login2",
             formdata={'user': 'vicious_star@163.com', 'passwrd': 'qwer1234', 'cookieneverexp': 'on'},
             callback=self.after_login
-        )
+        )]
         
       
     def after_login(self, response):
@@ -32,7 +31,19 @@ class btuserspider(scrapy.spider.Spider):
         )
 
     def extractUserUrl(self,response):
-        time = response.xpath('//*[@id="bodyarea"]/table[2]/tr[3]/td[10]/text()').extract()        
+        pattern = re.compile(r'\d+')
+        time = response.xpath('//*[@id="bodyarea"]/table[2]/tr[3]/td[10]/text()').extract()[0].split('-')
+        time = datetime.datetime(int(time[0]), int(time[1]), int(time[2]), 23, 59, 59)
+        urls = response.xpath('//*[@id="bodyarea"]/table[2]/tr/td[2]/a/@href').extract()[1:]
+        
+        if self.isNewTime(time):
+            for url in urls:
+                yield Request(url = url, callback = self.extractUser)
+            cur = int(pattern.findall(response.xpath('//*[@id="bodyarea"]/div/div/b[3]/a/text()').extract()[0])[1])
+            last = int(pattern.findall(response.xpath('//*[@id="bodyarea"]/div/div/text()[3]').extract()[0])[1])
+            nexturl = "https://bitcointalk.org/index.php?action=mlist;sort=registered;start=%d;desc" % (int(pattern.findall(response.url)[0]) + 30)
+            if cur < last:
+                yield Request(url = nexturl, callback = self.extractUserUrl)
 
     def extractUser(self, response):
         user = User()
