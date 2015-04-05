@@ -1,10 +1,10 @@
 import re
 import time
+import os
 from datetime import datetime
 from scrapy.contrib.downloadermiddleware.retry import RetryMiddleware
 from scrapy import log
 from scrapy import signals
-from BitcointalkSpider.util import incAttr
 from twisted.internet import defer
 from twisted.internet.error import TimeoutError, DNSLookupError, \
         ConnectionRefusedError, ConnectionDone, ConnectError, \
@@ -13,6 +13,8 @@ from twisted.internet.error import TimeoutError, DNSLookupError, \
 from scrapy.exceptions import NotConfigured
 from scrapy.utils.response import response_status_message
 from scrapy.xlib.tx import ResponseFailed
+from BitcointalkSpider.util import incAttr
+from BitcointalkSpider.settings import SPIDER_PRO_DIR
 
 class MyRetryMiddleware(RetryMiddleware):
     """docstring for MyRetryMiddleware"""
@@ -41,7 +43,8 @@ class MyRetryMiddleware(RetryMiddleware):
             self.file = None
     
     def spider_closed(self):       
-        self.file.write(str(self.status))
+        f = open(os.path.join(SPIDER_PRO_DIR, 'stat.info'), 'w+')
+        f.writelines((str(self.status))
         self.file.close() if self.file else None
 
     def process_response(self, request, response, spider):
@@ -51,7 +54,7 @@ class MyRetryMiddleware(RetryMiddleware):
             #recode exception time and suspend spider
             key = self.genKey()
             incAttr(self.status, key)
-            if self.status[key] >= self.maxExceptionTime:
+            if self.maxExceptionTime and self.status[key] >= self.maxExceptionTime:
                 time.sleep(self.suspendTime)
             reason = response_status_message(response.status)
             return self._retry(request, reason, spider) or response
