@@ -5,3 +5,4 @@
 *.html
 *.xml
 /.idea
+/requestData
