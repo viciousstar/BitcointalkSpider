@@ -5,3 +5,5 @@
 *.html
 *.xml
 /.idea
+/RetryUrl
+*.info
