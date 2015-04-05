@@ -3,7 +3,7 @@ from datetime import datetime
 
 def timeFormat(time):
     try:
-        if time.find('at'):
+        if 'at' in time:
             today = datetime.today()
             time = datetime.strptime(time.strip(), 'at %I:%M:%S %p')
             time = time.replace(today.year, today.month, today.day)
@@ -18,6 +18,7 @@ def incAttr(dct, s):
         dct[s] = dct[s] + 1
     else:
         dct[s] = 0
+
 
 def creatPath(*args):
     for s in args:

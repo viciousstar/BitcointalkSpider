@@ -5,6 +5,14 @@ from scrapy.contrib.downloadermiddleware.retry import RetryMiddleware
 from scrapy import log
 from scrapy import signals
 from BitcointalkSpider.util import incAttr
+from twisted.internet import defer
+from twisted.internet.error import TimeoutError, DNSLookupError, \
+        ConnectionRefusedError, ConnectionDone, ConnectError, \
+        ConnectionLost, TCPTimedOutError
+
+from scrapy.exceptions import NotConfigured
+from scrapy.utils.response import response_status_message
+from scrapy.xlib.tx import ResponseFailed
 
 class MyRetryMiddleware(RetryMiddleware):
     """docstring for MyRetryMiddleware"""

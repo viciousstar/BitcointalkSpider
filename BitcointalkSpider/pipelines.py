@@ -36,9 +36,9 @@ class JsonWithEncodingPipeline(object):
         #if it not has collection it will creat itself
         self.thclt = self.db[thcltname]
         self.userclt = self.db[usercltname]
-        userpath = os.path.join(SPIDER_DATA_DIR, "User")
-        threadpath = os.path.join(SPIDER_DATA_DIR, "Thread")
-        creatPath(userpath, threadpath)
+        self.userpath = os.path.join(SPIDER_DATA_DIR, "User")
+        self.threadpath = os.path.join(SPIDER_DATA_DIR, "Thread")
+        creatPath(self.userpath, self.threadpath)
         self.userfile = None
         self.threadfile = None
   
@@ -55,47 +55,46 @@ class JsonWithEncodingPipeline(object):
                 lastDate = timeFormat(item['lastDate'][-1].strip())
             else:
                 lastDate = None
-            
             if usertime and usertime > self.time:
                 if not self.userfile:
-                    self.userfile = codecs.open(os.path.join(userpath,str(self.time.year) + str(self.time.month)), "ab", encoding = "utf-8")
+                    self.userfile = codecs.open(os.path.join(self.userpath,str(self.time.year) + str(self.time.month)), "ab", encoding = "utf-8")
                 line = json.dumps(dict(item), ensure_ascii=False) + "\n"
                 self.userfile.write(line)
                 item['lastDate'] = lastDate
                 item['registerDate'] = usertime
-                item['year'] = registerDate.year
-                item['month'] = registerDate.month
-                item['day'] = registerDate.day 
+                item['year'] = usertime.year
+                item['month'] = usertime.month
+                item['day'] = usertime.day 
                 item['activity'] = int(item['activity'][0]) 
                 item['posts'] = int(item['posts'][0])
-                self.userclt.update({'name': item['name']}, item.fields, {upsert: True})
+                self.userclt.update({'name': item['name']}, item.fields, upsert = True)
                 self.stats.inc_value('saveUserNum')
+                return item
         if item.__class__ == Thread:
             # print item
             if item['time']:
-                threadtime = timeFormat(item['time'][-1].strip())
+                threadtime = timeFormat(item['time'].strip())
             else:
                 threadtime = None
             if threadtime and threadtime > self.time:
                 if not self.threadfile:
-                    self.threadfile = codecs.open(os.path.join(threadpath, str(self.time.year) + str(self.time.month)), "ab", encoding = "utf-8")
+                    self.threadfile = codecs.open(os.path.join(self.threadpath, str(self.time.year) + str(self.time.month)), "ab", encoding = "utf-8")
                 #There we can add some \n to make it comfortable for people to read
-                line = json.dumps(dict(item), ensure_ascii=False) + "\n"
+                line = json.dumps(item.fields, ensure_ascii=False) + "\n"
                 self.threadfile.write(line)
-                time = threadtime
-                item['time'] = time
-                item['year'] = time.year
-                item['month'] = time.month
-                item['day'] = time.day 
-                self.thclt.upsert(item.fields, item.fields, {upsert: True})
+                item['time'] = threadtime
+                item['year'] = threadtime.year
+                item['month'] = threadtime.month
+                item['day'] = threadtime.day 
+                self.thclt.update(item.fields, item.fields, upsert = True)
                 self.stats.inc_value('saveThreadNum')
-        return item
+                return item
     def close_spider(self, spider):
         plotThread(self.thclt, self.time).plot()
         plotUser(self.userclt, self.time).plot()
-        # try:
-        self.userfile.close()
-        self.threadfile.close()
-        self.client.close()
-        # except:
-        # log.msg('pipeline file close fail')
+        try:
+            self.userfile.close()
+            self.threadfile.close()
+            self.client.close()
+        except:
+            log.msg('pipeline file close fail')

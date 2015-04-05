@@ -113,7 +113,6 @@ class btthreadspider(scrapy.spider.Spider):
                     time = datetime.strptime(time.strip(), "on %B %d, %Y, %I:%M:%S %p")
                 else:
                     time = datetime.strptime(time.strip(), "%B %d, %Y, %I:%M:%S %p")
-
             return time
         except:
             log.msg('timeFormat fail.', level = log.ERROR)
