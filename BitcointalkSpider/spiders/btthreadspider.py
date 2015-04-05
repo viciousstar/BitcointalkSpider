@@ -83,23 +83,24 @@ class btthreadspider(scrapy.spider.Spider):
             time = self.timeFormat(timelist[2].strip())
         else:
             time = self.timeFormat(timelist[0].strip())
-        url = response.url
         if self.isNewTime(time):
             urls = response.xpath('//a/@href').extract()
             for url in urls:
-                pattren = re.compile("https://bitcointalk\.org/index\.php\?action=printpage;topic=\d+\.0$")
+                pattren = re.compile("https://bitcointalk\.org/index\.php\?topic=\d+\.0$")
                 if pattren.match(url):
-                    yield Request(url=url, callback = self.extractPost)
-
-            k, n = url.rsplit('.', 1)
+                    printurl = '?action=printpage;'.join(url.rsplit('?', 1))
+                    yield Request(url=printurl, callback = self.extractPost)
+            #gen next board url 
+            nexturl = response.url
+            k, n = nexturl.rsplit('.', 1)
             n = int(n)
             if k not in self.maxboardurl:
                 self.genmax(response)
             mn = self.maxboardurl[k]
-            url = ''.join([k, '.', str(n + 40)])
+            nexturl = ''.join([k, '.', str(n + 40)])
             #generate next board url   
             if n < mn:        
-                yield Request(url=url, callback = self.filterPost)  
+                yield Request(url=nexturl, callback = self.filterPost)  
 
     def timeFormat(self, time):
         try:

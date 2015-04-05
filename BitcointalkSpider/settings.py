@@ -38,3 +38,8 @@ DOWNLOADER_MIDDLEWARES = {
     'scrapy.contrib.downloadermiddleware.retry.RetryMiddleware': None,
     'BitcointalkSpider.retryMiddleware.MyRetryMiddleware': 500
 }
+
+# stop spider if the 
+MAX_EXCEPTION_PER_HOUR = 100
+# second of SUSPEND
+SUSPEND_TIME = 3600

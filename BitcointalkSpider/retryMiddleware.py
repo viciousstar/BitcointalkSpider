@@ -1,14 +1,20 @@
 import re
+import time
+from datetime import datetime
 from scrapy.contrib.downloadermiddleware.retry import RetryMiddleware
 from scrapy import log
 from scrapy import signals
+from BitcointalkSpider.util import incAttr
+
 class MyRetryMiddleware(RetryMiddleware):
     """docstring for MyRetryMiddleware"""
     def __init__(self, settings):
         super(MyRetryMiddleware, self).__init__(settings)
         self.max_retry_main_times = settings.getint('RETRY_MAIN_TIMES')
         self.path = settings.get('SPIDER_RETRYURL_DIR')
-    
+        self.status = {self.genKey() : 0}
+        self.maxExceptionTime = settings.getint('MAX_EXCEPTION_PER_HOUR')
+        self.suspendTime = settings.getint('SUSPEND_TIME')
     @classmethod
     def from_crawler(cls, crawler):
         rt = cls(crawler.settings)
@@ -16,6 +22,9 @@ class MyRetryMiddleware(RetryMiddleware):
         crawler.signals.connect(rt.spider_closed, signal = signals.spider_closed)
         return rt
     
+    def genKey(self):
+        return str(datetime.today().day) + str(datetime.today()).hour
+
     def spider_opened(self):
         try:
             self.file = open(self.path, 'a+')
@@ -24,8 +33,21 @@ class MyRetryMiddleware(RetryMiddleware):
             self.file = None
     
     def spider_closed(self):       
+        self.file.write(str(self.status))
         self.file.close() if self.file else None
 
+    def process_response(self, request, response, spider):
+        if 'dont_retry' in request.meta:
+            return response
+        if response.status in self.retry_http_codes:
+            #recode exception time and suspend spider
+            key = self.genKey()
+            incAttr(self.status, key)
+            if self.status[key] >= self.maxExceptionTime:
+                time.sleep(self.suspendTime)
+            reason = response_status_message(response.status)
+            return self._retry(request, reason, spider) or response
+        return response
     
     def _retry(self, request, reason, spider):
         retries = request.meta.get('retry_times', 0) + 1
