@@ -89,7 +89,7 @@ class JsonWithEncodingPipeline(object):
                 item['day'] = time.day 
                 self.thclt.upsert(item.fields, item.fields, {upsert: True})
                 self.stats.inc_value('saveThreadNum')
-
+        return item
     def close_spider(self, spider):
         plotThread(self.thclt, self.time).plot()
         plotUser(self.userclt, self.time).plot()

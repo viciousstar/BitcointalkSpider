@@ -23,7 +23,7 @@ class MyRetryMiddleware(RetryMiddleware):
         return rt
     
     def genKey(self):
-        return str(datetime.today().day) + str(datetime.today()).hour
+        return str(datetime.today().day) + str(datetime.today().hour)
 
     def spider_opened(self):
         try:

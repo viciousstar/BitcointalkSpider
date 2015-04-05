@@ -31,7 +31,7 @@ class btthreadspider(scrapy.spider.Spider):
             thread['topic'] = infos[i*3].extract()
             thread['user'] = infos[i*3+1].extract()
             thread['time'] = infos[i*3+2].extract()
-            thread['content'] = posts[i].extract()
+            thread['content'] = posts[i].xpath('.//text()').extract()
             thread['flag'] = 0 if i==0 else 1
             thread['ofBoard'] = ofBoard
             yield thread

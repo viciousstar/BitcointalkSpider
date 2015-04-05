@@ -33,7 +33,7 @@ class btuserspider(scrapy.spider.Spider):
     def extractUserUrl(self,response):
         pattern = re.compile(r'\d+')
         time = response.xpath('//*[@id="bodyarea"]/table[2]/tr[3]/td[10]/text()').extract()[0].split('-')
-        time = datetime.datetime(int(time[0]), int(time[1]), int(time[2]), 23, 59, 59)
+        time = datetime(int(time[0]), int(time[1]), int(time[2]), 23, 59, 59)
         urls = response.xpath('//*[@id="bodyarea"]/table[2]/tr/td[2]/a/@href').extract()[1:]
         
         if self.isNewTime(time):
@@ -41,8 +41,8 @@ class btuserspider(scrapy.spider.Spider):
                 yield Request(url = url, callback = self.extractUser)
             cur = int(pattern.findall(response.xpath('//*[@id="bodyarea"]/div/div/b[3]/a/text()').extract()[0])[1])
             last = int(pattern.findall(response.xpath('//*[@id="bodyarea"]/div/div/text()[3]').extract()[0])[1])
-            nexturl = "https://bitcointalk.org/index.php?action=mlist;sort=registered;start=%d;desc" % (int(pattern.findall(response.url)[0]) + 30)
             if cur < last:
+                nexturl = "https://bitcointalk.org/index.php?action=mlist;sort=registered;start=%d;desc" % (int(pattern.findall(response.url)[0]) + 30)
                 yield Request(url = nexturl, callback = self.extractUserUrl)
 
     def extractUser(self, response):
