@@ -68,7 +68,7 @@ class JsonWithEncodingPipeline(object):
                 item['day'] = registerDate.day 
                 item['activity'] = int(item['activity'][0]) 
                 item['posts'] = int(item['posts'][0])
-                self.userclt.save(dict(item))
+                self.userclt.update({'name': item['name']}, item.fields, {upsert: True})
                 self.stats.inc_value('saveUserNum')
         if item.__class__ == Thread:
             # print item
@@ -87,7 +87,7 @@ class JsonWithEncodingPipeline(object):
                 item['year'] = time.year
                 item['month'] = time.month
                 item['day'] = time.day 
-                self.thclt.save(dict(item))
+                self.thclt.upsert(item.fields, item.fields, {upsert: True})
                 self.stats.inc_value('saveThreadNum')
 
     def close_spider(self, spider):
