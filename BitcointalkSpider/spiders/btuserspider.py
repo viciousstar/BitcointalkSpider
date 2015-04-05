@@ -33,7 +33,7 @@ class btuserspider(scrapy.spider.Spider):
 
     def extractUserUrl(self,response):
         time = response.xpath('//*[@id="bodyarea"]/table[2]/tr[3]/td[10]/text()').extract()        
-
+        
     def extractUser(self, response):
         user = User()
         userinfo = response.xpath("//table[@border = '0'  and @cellpadding = '2']/tr")
