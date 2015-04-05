@@ -54,7 +54,7 @@ class MyRetryMiddleware(RetryMiddleware):
             #recode exception time and suspend spider
             key = self.genKey()
             incAttr(self.status, key)
-            if self.status[key] >= self.maxExceptionTime:
+            if self.maxExceptionTime and self.status[key] >= self.maxExceptionTime:
                 time.sleep(self.suspendTime)
             reason = response_status_message(response.status)
             return self._retry(request, reason, spider) or response

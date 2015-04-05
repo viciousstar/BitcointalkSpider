@@ -115,9 +115,18 @@ class btuserspider(scrapy.spider.Spider):
                     else:
                         user["bitcoinAddress"] = None
                     continue
+                else:
+                        incAttr(self.stats, 'ignoreUserAttrNum')
+                        log.msg('%s do not extract info in %s!' % response.body, response.url, level = log.ERROR)
             else:
-                continue
+                incAttr(self.stats, 'ignoreUserNum')
+                log.msg('%s do not extract info in %s!' % response.body, response.url, level = log.ERROR)
+        if dict(user).values() == [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]:
+            incAttr(self.stats, 'ignoreUserNum')
+            log.msg('%s do not extract info in %s!' % response.body, response.url, level = log.ERROR)
+            return         
         return user
+
 
     def isNewTime(self, time):
         #rather crawl more than ignore
