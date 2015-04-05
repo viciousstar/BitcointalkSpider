@@ -21,7 +21,7 @@ class btthreadspider(scrapy.spider.Spider):
     
     def extractPost(self, response):
         posts = response.xpath('//div[@style="margin: 0 5ex;"]')
-        infos = response.xpath('//b/text()')
+        infos = response.xpath('/html/body/table/tr/td/b/text()')
         ofBoard = response.xpath('//h2/text()').extract()[0].split(' => ')[:-1]
         n = len(posts)
 

@@ -40,7 +40,7 @@ class btuserspider(scrapy.spider.Spider):
             for url in urls:
                 yield Request(url = url, callback = self.extractUser)
             cur = int(pattern.findall(response.xpath('//*[@id="bodyarea"]/div/div/b[3]/a/text()').extract()[0])[1])
-            last = int(pattern.findall(response.xpath('//*[@id="bodyarea"]/div/div/text()[3]').extract()[0])[1])
+            last = int(pattern.findall(response.xpath('//*[@id="bodyarea"]/div/div/text()[3]').extract()[0])[0])
             if cur < last:
                 nexturl = "https://bitcointalk.org/index.php?action=mlist;sort=registered;start=%d;desc" % (int(pattern.findall(response.url)[0]) + 30)
                 yield Request(url = nexturl, callback = self.extractUserUrl)
