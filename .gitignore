@@ -2,3 +2,10 @@
 /bt
 *.json
 *.pyc
+*.html
+*.xml
+/.idea
+/requestData
+/RetryUrl
+*.info
+*.cfg~

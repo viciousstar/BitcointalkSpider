@@ -1,36 +1,45 @@
 # -*- coding: utf-8 -*-
-
-# Scrapy settings for BitcointalkSpider project
-#
-# For simplicity, this file contains only the most important settings by
-# default. All the other settings are documented here:
-#
-#     http://doc.scrapy.org/en/latest/topics/settings.html
-#
+import os
 
 BOT_NAME = 'BitcointalkSpider'
-SPIDER_WORK_DIR = '/home/thl/project/BitcointalkSpider/Data'
+#some info file use : stat.info
+SPIDER_PRO_DIR  = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
+
+#the dir of data store
+SPIDER_DATA_DIR = os.path.join(SPIDER_PRO_DIR, 'Data')
+SPIDER_PLOT_DIR = os.path.join(SPIDER_PRO_DIR, 'Plot')
+SPIDER_RETRYURL_DIR = os.path.join(SPIDER_PRO_DIR, 'RetryUrl') 
+# JOBDIR = os.path.join(SPIDER_PRO_DIR, 'requestData')
 SPIDER_MODULES = ['BitcointalkSpider.spiders']
 NEWSPIDER_MODULE = 'BitcointalkSpider.spiders'
-# retry
-RETRY_ENABLED = False
-# cookie, we don't need cookies in this website
-COOKIES_ENABLED = False
-# this time have to reset
+RETRY_ENABLED = True
+RETRY_MAIN_TIMES = 10
+COOKIES_ENABLED = True
+# COOKIES_DEBUG = True
 DOWNLOAD_TIMEOUT = 15
-
 DOWNLOAD_DELAY = 1
-# get out of debug stage
 LOG_LEVEL = "INFO"
-# turn up speed of spider
-#LOG_FILE = "scrapy.log"
+LOG_FILE = os.path.join(SPIDER_PRO_DIR, "scrapy.log")
 CONCURRENT_REQUESTS_PER_DOMAIN = 300
 CONCURRENT_REQUESTS = 300
-# Crawl responsibly by identifying yourself (and your website) on the user-agent
-#取消默认的useragent,使用新的useragent
-DOWNLOADER_MIDDLEWARES = {
-        'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware' : None,
-        'BitcointalkSpider.rotate_useragent.RotateUserAgentMiddleware' :400
-    }
+#depth priority
+DEPTH_PRIORITY = 1
+SCHEDULER_DISK_QUEUE = 'scrapy.squeue.PickleFifoDiskQueue'
+SCHEDULER_MEMORY_QUEUE = 'scrapy.squeue.FifoMemoryQueue'
+#output item as json
+ITEM_PIPELINES = {'BitcointalkSpider.pipelines.JsonWithEncodingPipeline' : 800}
+#recode time info of spider and filter url according to time
+EXTENSIONS = {
+    'BitcointalkSpider.filterurl.FilterurlExtension' : 1
+}
+#DUPEFILTER_CLASS = 'BitcointalkSpider.filterurl.SaveRequestSeen'
 
-ITEM_PIPELINES = ['BitcointalkSpider.pipelines.JsonWithEncodingPipeline']
+DOWNLOADER_MIDDLEWARES = {
+    'scrapy.contrib.downloadermiddleware.retry.RetryMiddleware': None,
+    'BitcointalkSpider.retryMiddleware.MyRetryMiddleware': 500
+}
+
+# stop spider if the exception >, if the value if 0, this may be disable 
+MAX_EXCEPTION_PER_HOUR = 0
+# second of SUSPEND
+SUSPEND_TIME = 3600

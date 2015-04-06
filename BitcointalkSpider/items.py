@@ -1,28 +1,24 @@
 # -*- coding: utf-8 -*-
 
-# Define here the models for your scraped items
-#
-# See documentation in:
-# http://doc.scrapy.org/en/latest/topics/items.html
-
 import scrapy
 
 
-class  User(scrapy.Item):
+class User(scrapy.Item):
 	# store user's infromation
 	name = scrapy.Field()
 	posts = scrapy.Field()
 	activity = scrapy.Field()
 	position = scrapy.Field()
-	registerDate= scrapy.Field()
+	registerDate = scrapy.Field()
 	lastDate = scrapy.Field()
 	Email = scrapy.Field()
 	gender = scrapy.Field()
 	age = scrapy.Field()
 	bitcoinAddress = scrapy.Field()
-
+	year = scrapy.Field()
+	month = scrapy.Field()
+	day = scrapy.Field()
     
-
 class Thread(scrapy.Item):
 	# store posts' information
 	topic = scrapy.Field()
@@ -32,6 +28,7 @@ class Thread(scrapy.Item):
 	url = scrapy.Field()
 	ofBoard = scrapy.Field()
 	user = scrapy.Field()
-
-class Post(Thread):
-	pass
+	year = scrapy.Field()
+	month = scrapy.Field()
+	day = scrapy.Field()
+	flag = scrapy.Field()  #Thread if 1 else 0
