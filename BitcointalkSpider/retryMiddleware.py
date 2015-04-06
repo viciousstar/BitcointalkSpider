@@ -43,8 +43,8 @@ class MyRetryMiddleware(RetryMiddleware):
             self.file = None
     
     def spider_closed(self):       
-        f = open(os.path.join(SPIDER_PRO_DIR, 'stat.info'), 'w+')
-        f.writelines((str(self.status))
+        f = open(os.path.join(SPIDER_PRO_DIR, 'stat.info'), 'a+')
+        f.writelines(str(self.status))
         self.file.close() if self.file else None
 
     def process_response(self, request, response, spider):

@@ -18,7 +18,7 @@ COOKIES_ENABLED = True
 # COOKIES_DEBUG = True
 DOWNLOAD_TIMEOUT = 15
 DOWNLOAD_DELAY = 1
-LOG_LEVEL = "DEBUG"
+LOG_LEVEL = "INFO"
 LOG_FILE = os.path.join(SPIDER_PRO_DIR, "scrapy.log")
 CONCURRENT_REQUESTS_PER_DOMAIN = 300
 CONCURRENT_REQUESTS = 300
@@ -39,7 +39,7 @@ DOWNLOADER_MIDDLEWARES = {
     'BitcointalkSpider.retryMiddleware.MyRetryMiddleware': 500
 }
 
-# stop spider if the 
+# stop spider if the exception >, if the value if 0, this may be disable 
 MAX_EXCEPTION_PER_HOUR = 0
 # second of SUSPEND
 SUSPEND_TIME = 3600

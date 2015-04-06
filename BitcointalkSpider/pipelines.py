@@ -36,6 +36,15 @@ class JsonWithEncodingPipeline(object):
         #if it not has collection it will creat itself
         self.thclt = self.db[thcltname]
         self.userclt = self.db[usercltname]
+        #to find by time envi
+        self.thclt.create_index('year')
+        self.thclt.create_index('month')
+        self.thclt.create_index('day')
+        self.thclt.create_index('time')
+        self.userclt.create_index('name')
+        self.userclt.create_index('month')
+        self.userclt.create_index('day')
+        self.userclt.create_index('year')
         self.userpath = os.path.join(SPIDER_DATA_DIR, "User")
         self.threadpath = os.path.join(SPIDER_DATA_DIR, "Thread")
         creatPath(self.userpath, self.threadpath)
