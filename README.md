@@ -8,8 +8,7 @@ BitcointalkSpider is a web crawler targeting at crawling down all the data of [B
 
 1. install scrapy (refer to http://doc.scrapy.org/en/latest/intro/install.html)
 2. install mongodb and pymongo
-4. run mongod
-3. download it, switch to its folder in the terminal, and execute 'scrapy crawl btthreadspider -s JOBDIR=requestThreadData' or 'scrapy crawl btthreadspider -s JOBDIR=requestThreadData' or 'python start.py'
+3. download it, switch to its folder in the terminal, and execute "scrapy crawl btspider"
 
 FoOTOo Lab 2014-2015
 
@@ -24,42 +23,42 @@ FoOTOo Lab 2014-2015
 ## 数据格式
 ###user
 {
-  "name" : [
-    "SheriffWoody"                  
+	"name" : [
+		"SheriffWoody"                  
 `列表，字符串`
-  ],
-  "gender" : [ ],                            
+	],
+	"gender" : [ ],                            
 `列表， 字符串，可能为空， Male， Female`
-  "age" : [
-    "N/A" 
+	"age" : [
+		"N/A" 
 `列表， 字符串， 可能为 N/A， 或者数字`
-  ],
-  "posts" : [
-    "5" 
+	],
+	"posts" : [
+		"5" 
 `列表， 字符串， 正整数`
-  ],
-  "lastDate" : [
-    "May 17, 2011, 06:43:45 PM"    
+	],
+	"lastDate" : [
+		"May 17, 2011, 06:43:45 PM"    
 `列表， 字符串， "%B %d, %Y, %I:%M:%S %p"， 或者 [ "Today", " at 03:19:13 PM" ]`
-  ],
-  "activity" : [
-    "5"
+	],
+	"activity" : [
+		"5"
 `列表， 字符串， 正整数`
-  ],
-  "bitcoinAddress" : [ ],
+	],
+	"bitcoinAddress" : [ ],
 `列表，字符串， 为包含bitcoin地址的复杂字符串`
-  "position" : [
-    "Newbie"
+	"position" : [
+		"Newbie"
 `列表，字符串， 分类 Newbie Legendary Jr.member Member Full merber Sr. Membe Hero Member  etc.`
-  ],
-  "registerDate" : [
-    "March 05, 2010, 01:57:46 AM"
+	],
+	"registerDate" : [
+		"March 05, 2010, 01:57:46 AM"
 `列表， 字符串， "%B %d, %Y, %I:%M:%S %p"， 或者 [ "Today", " at 03:19:13 PM" ]`
-  ],
-  "Email" : [
-    "hidden"
+	],
+	"Email" : [
+		"hidden"
 `列表， 字符串， hidder 或者 邮件地址`
-  ]
+	]
 }
 ###thread
 {
