@@ -8,7 +8,8 @@ BitcointalkSpider is a web crawler targeting at crawling down all the data of [B
 
 1. install scrapy (refer to http://doc.scrapy.org/en/latest/intro/install.html)
 2. install mongodb and pymongo
-3. download it, switch to its folder in the terminal, and execute "scrapy crawl btspider"
+3. run mongod
+4. download it, switch to its folder in the terminal, and execute 'scrapy crawl btthreadspider -s JOBDIR=requestThreadData' or 'scrapy crawl btthreadspider -s JOBDIR=requestThreadData' or 'python start.py'
 
 FoOTOo Lab 2014-2015
 
